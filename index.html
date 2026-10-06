@@ -1,0 +1,929 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="抄底儀表板">
+<meta name="theme-color" content="#0f1117">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>抄底儀表板</title>
+<style>
+:root{--bg:#0f1117;--card:#171a23;--in:#0d1017;--line:#272b36;--tx:#e6e8ee;--tx2:#9aa0ae;--ok:#3fb950;--no:#f85149}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.7 -apple-system,"Helvetica Neue","PingFang TC",sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 20px 60px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}
+h2{font-size:17px;font-weight:600;margin:0 0 12px}
+.meta{color:var(--tx2);font-size:13px;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:16px}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 20px;margin-bottom:16px}
+summary{cursor:pointer;font-weight:600}
+table.g{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+table.g td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.g td:first-child{width:70px;white-space:nowrap}
+.bar{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:18px;position:sticky;top:0;z-index:5}
+.brow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.brow+.brow{margin-top:10px}
+input#q{background:var(--in);color:var(--tx);border:1px solid #33405c;border-radius:8px;padding:10px 13px;font-size:15px;width:230px;font-family:inherit}
+input#q:focus{outline:none;border-color:#1f6feb}
+select{background:var(--in);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:14px;min-width:320px;font-family:inherit}
+.lbl{color:var(--tx2);font-size:13px}
+.chip{background:var(--in);border:1px solid var(--line);color:var(--tx2);border-radius:999px;padding:5px 13px;font-size:13px;cursor:pointer}
+.chip.on{background:#1f6feb;border-color:#1f6feb;color:#fff}
+.badge{border-radius:6px;padding:3px 11px;font-size:13px;font-weight:600}
+.gA{background:#132e1c;color:#3fb950;border:1px solid #2ea04366}
+.gB{background:#0d2947;color:#58a6ff;border:1px solid #1f6feb66}
+.gC{background:#2b2410;color:#d29922;border:1px solid #9e6a0366}
+.gD{background:#22252e;color:#8b93a1;border:1px solid var(--line)}
+.cat{border-radius:8px;padding:11px 15px;margin-bottom:14px;font-size:15px}
+.hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.tk{font-size:26px;font-weight:600}
+.px{font-size:19px;color:var(--tx2)}
+img.chart{width:100%;border-radius:8px;display:block;background:#fff;min-height:120px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:18px}
+.blk{background:var(--in);border:1px solid var(--line);border-radius:8px;padding:15px}
+.blk h3{margin:0 0 4px;font-size:13px;font-weight:600;color:var(--tx2);letter-spacing:.04em}
+.hint{font-size:12.5px;line-height:1.65;color:#7d8492;border-left:2px solid #2d3446;padding-left:9px;margin:8px 0 12px}
+.hint b{color:#9aa4b5}
+.row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:14px}
+.y{color:var(--ok)} .n{color:var(--no)} .dim{color:var(--tx2)}
+.big{font-size:22px;font-weight:600}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.tag{background:#1c2333;border:1px solid #2d3650;color:#8ab4f8;border-radius:5px;padding:2px 8px;font-size:12px}
+.plan{width:100%;border-collapse:collapse;font-size:14px;margin-top:4px}
+.plan td{padding:5px 6px;border-bottom:1px solid var(--line)}
+.plan td:last-child{text-align:right}
+.res{width:100%;border-collapse:collapse;font-size:13.5px}
+.res td{padding:4px 6px;border-bottom:1px solid var(--line)}
+.warn{background:#2b1d10;border:1px solid #8a5a2166;color:#e0b341;border-radius:6px;padding:9px 12px;font-size:13.5px;margin-top:10px}
+.foot{color:var(--tx2);font-size:13px;border-top:1px solid var(--line);padding-top:16px;margin-top:26px}
+.upd{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin:-8px 0 12px;font-size:13.5px}
+.btn{background:#1f6feb;color:#fff;border:0;border-radius:8px;padding:7px 14px;font-size:13.5px;cursor:pointer;font-family:inherit}
+.btn:disabled{opacity:.5;cursor:default}
+.pbar{display:none;height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:16px}
+#prog{height:100%;width:0;background:#1f6feb;transition:width .2s}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.hl{color:#e3b341;font-weight:800}
+.tbuy{border-color:#2ea04399;box-shadow:0 0 0 1px #2ea04355 inset}
+.modal{position:fixed;inset:0;background:rgba(5,7,12,.72);z-index:50;overflow:auto;padding:20px 12px}
+.mbox{max-width:1180px;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px 20px}
+.mtop{position:sticky;top:0;text-align:right;padding:6px 0;background:var(--bg);z-index:2}
+body.noscroll{overflow:hidden}
+@media (max-width:520px){.tiles{grid-template-columns:1fr}.modal{padding:0}.mbox{border-radius:0}}
+.tile{background:var(--in);border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer;transition:border-color .15s}
+.tile:hover{border-color:#1f6feb}.th{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}.ttk{font-size:19px}
+.fz{width:100%;border-radius:6px;display:block;filter:invert(.92) hue-rotate(180deg);background:#fff;aspect-ratio:466/219}
+.tf{font-size:12.5px;margin-top:5px;line-height:1.5}.vsvg{width:100%;height:auto;background:#0f141c;border-radius:6px;display:block}
+
+/* ---- 手機版 ---- */
+.wrap{padding-top:max(24px,env(safe-area-inset-top));padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+@media (max-width:640px){
+ .wrap{padding:max(14px,env(safe-area-inset-top)) 12px 40px}
+ h1{font-size:19px}
+ .bar{padding:10px}
+ .brow{gap:8px}
+ input#q{width:100%!important;flex:1 1 100%;font-size:16px}
+ #qgo{flex:1 1 100%;padding:10px}
+ #sel{max-width:100%!important;width:100%;font-size:15px;padding:8px}
+ .chips{overflow-x:auto;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+ .chip{white-space:nowrap;padding:7px 13px}
+ .tiles{grid-template-columns:1fr!important}
+ .card{padding:14px!important}
+ .grid{grid-template-columns:1fr!important}
+ .modal{padding:0}
+ .mbox{border-radius:0;min-height:100%;padding:max(8px,env(safe-area-inset-top)) 10px 30px}
+ .mtop button{padding:10px 16px;font-size:15px}
+ .tk{font-size:22px}
+ .row{font-size:14px}
+ .meta,.upd{font-size:12.5px}
+}
+</style></head><body><div class="wrap">
+<h1>美股抄底 + VCP 儀表板（高勝率版・套用我的篩選）</h1>
+<div class="meta" id="meta">讀取中…</div>
+<div class="upd"><span id="status" class="dim"></span><button id="rescan" class="btn">重新掃描</button></div>
+<div class="pbar"><div id="prog"></div></div>
+
+<div class="bar">
+  <div class="brow">
+    <span class="lbl">查股票</span>
+    <input id="q" list="tks" style="width:300px" placeholder="輸入任何美股代碼，如 AAPL（會顯示是否符合你的篩選）" autocomplete="off">
+    <datalist id="tks"></datalist>
+    <button id="qgo" class="btn">分析</button>
+    <span class="lbl" id="qmsg"></span>
+  </div>
+  <div class="brow">
+    <span class="lbl">分類查詢</span>
+    <select id="sel" style="max-width:420px"></select>
+    <div class="chips" id="chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  </div>
+</div>
+<div class="card" style="padding:14px 18px"><div style="font-size:15px;line-height:1.9">
+<b>分級：</b><b class="hl">A 級＝建議買</b>（有驗證過的抄底訊號）、B 級＝觀察不買（在你的篩選範圍，等訊號）、C 級＝不買（不在你的範圍）。<br><b>怎麼用：</b>只看「今天建議買」。有股票就照小圖下的價格：<b>隔天開盤買</b>，同時掛好<b class="y">停利</b>和<b class="n">停損</b>，60 天內都沒碰到就賣掉；每檔最多放總資金 10%。沒有股票就不買。<br>
+<b>勝率是什麼：</b>過去 10 年用同樣規則買，先漲到停利價（+5%）的比例。79.8% 代表大約每 5 次贏 4 次，輸的那次會賠 15%，平均每筆約賺 1.4%。
+</div><div class="dim" style="font-size:12.5px;margin-top:4px">美股收盤後（台灣早上）打開最準。點任何小圖看細節。</div></div>
+<div id="recs" hidden></div>
+<div class="card" style="padding:16px 18px"><h2 style="margin-bottom:4px">今天建議買（最多 10 檔）</h2>
+<div class="dim" style="font-size:12.5px;margin-bottom:10px"><span id="topsrc"></span>・符合你的篩選條件＋出現 10 年回測驗證過的抄底訊號，依勝率排序</div>
+<div id="top20" class="tiles"></div></div>
+
+<div class="card" style="padding:16px 18px"><h2 style="margin-bottom:6px" id="gridtitle">你的篩選名單</h2>
+<div id="gridtabs" class="chips" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px"></div>
+<div id="grid" class="tiles"></div><div id="gridmore" style="text-align:center;margin-top:12px"></div></div>
+<div class="foot">
+資料：stockanalysis.com（5 年 OHLCV，每次開啟即時抓取並在你的瀏覽器內計算）、Finviz（圖表）。股票池沿用 2026-07-19 掃描的 344 檔。<br>
+規則來源：ClaudeVault「SNR 記憶卡（坤庭）」水平／DE／趨勢線定義＋原儀表板與技能庫的超賣指標。<br>
+<b>本頁未構成投資建議</b>，任何下單決定與後果請自行負責。
+</div></div>
+<template id="tplLearn">
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+<div class="blk"><h3>標準 VCP 長這樣</h3>
+<svg viewBox="0 0 520 260" style="width:100%;height:auto" role="img" aria-label="VCP 示意圖">
+<polyline fill="none" stroke="#8ab4f8" stroke-width="2.2" points="10,200 60,150 100,95 130,60 165,120 205,72 235,105 265,80 288,97 310,84 326,92 340,86 360,60 400,38 440,25"/>
+<rect x="130" y="60" width="35" height="60" fill="rgba(210,153,34,.15)" stroke="#d29922"/><text x="128" y="136" fill="#e0b341" font-size="13" font-weight="600">T1 -25%</text>
+<rect x="205" y="72" width="30" height="33" fill="rgba(210,153,34,.15)" stroke="#d29922"/><text x="198" y="121" fill="#e0b341" font-size="13" font-weight="600">T2 -12%</text>
+<rect x="265" y="80" width="23" height="17" fill="rgba(210,153,34,.15)" stroke="#d29922"/><text x="258" y="113" fill="#e0b341" font-size="13" font-weight="600">T3 -6%</text>
+<rect x="310" y="84" width="16" height="8" fill="rgba(210,153,34,.15)" stroke="#d29922"/><text x="300" y="80" fill="#e0b341" font-size="12">T4 -3%</text>
+<line x1="310" x2="450" y1="84" y2="84" stroke="#58a6ff" stroke-dasharray="5 4"/><text x="405" y="78" fill="#58a6ff" font-size="12">樞紐點</text>
+<text x="352" y="52" fill="#3fb950" font-size="12">帶量突破＝買點</text>
+<g><rect x="12.0" y="220" width="11" height="30" fill="#6e7681"/><rect x="28.6" y="220" width="11" height="30" fill="#6e7681"/><rect x="45.2" y="220" width="11" height="30" fill="#6e7681"/><rect x="61.8" y="220" width="11" height="30" fill="#6e7681"/><rect x="78.4" y="220" width="11" height="30" fill="#6e7681"/><rect x="95.0" y="220" width="11" height="30" fill="#6e7681"/><rect x="111.6" y="226" width="11" height="24" fill="#6e7681"/><rect x="128.2" y="226" width="11" height="24" fill="#6e7681"/><rect x="144.8" y="226" width="11" height="24" fill="#6e7681"/><rect x="161.4" y="226" width="11" height="24" fill="#6e7681"/><rect x="178.0" y="226" width="11" height="24" fill="#6e7681"/><rect x="194.6" y="232" width="11" height="18" fill="#6e7681"/><rect x="211.2" y="232" width="11" height="18" fill="#6e7681"/><rect x="227.8" y="232" width="11" height="18" fill="#6e7681"/><rect x="244.4" y="232" width="11" height="18" fill="#6e7681"/><rect x="261.0" y="238" width="11" height="12" fill="#6e7681"/><rect x="277.6" y="238" width="11" height="12" fill="#6e7681"/><rect x="294.2" y="238" width="11" height="12" fill="#6e7681"/><rect x="310.8" y="238" width="11" height="12" fill="#6e7681"/><rect x="327.4" y="243" width="11" height="7" fill="#6e7681"/><rect x="344.0" y="243" width="11" height="7" fill="#6e7681"/><rect x="360.6" y="206" width="11" height="44" fill="#3fb950"/><rect x="377.2" y="220" width="11" height="30" fill="#6e7681"/><rect x="393.8" y="220" width="11" height="30" fill="#6e7681"/><rect x="410.4" y="220" width="11" height="30" fill="#6e7681"/><rect x="427.0" y="220" width="11" height="30" fill="#6e7681"/></g>
+<text x="12" y="216" fill="#9aa0ae" font-size="11">成交量：越縮越少（量能乾涸），突破那天爆量</text>
+</svg></div>
+<div class="blk"><h3>7 條規則（頁面就是照這個打分數排序）</h3>
+<div class="row"><span>1. 前段要有漲勢：50 日線在 200 日線上、離一年低點 +30% 以上</span></div>
+<div class="row"><span>2. 收縮 2–4 次（T1、T2、T3…）</span></div>
+<div class="row"><span>3. 每次收縮都比上一次淺（約 ≤ 上一次的 3/4，常見 25%→12%→6%）</span></div>
+<div class="row"><span>4. 第一次收縮 8–35%（太深代表趨勢壞掉）</span></div>
+<div class="row"><span>5. 最後一次收縮 ≤ 10%，K 線越來越窄、越來越緊</span></div>
+<div class="row"><span>6. 量能乾涸：近 10 日均量 &lt; 50 日均量的 3/4（賣壓用完）</span></div>
+<div class="row"><span>7. 股價在樞紐點 -5% 到 +3% 之間（買點附近，不追高）</span></div>
+<div class="hint" style="margin-top:10px">排序：先比分數（7 分最好），同分再看狀態（接近樞紐 &gt; 剛突破 &gt; 築底中 &gt; 已延伸 &gt; 型態破壞），再看離樞紐多近。</div></div>
+<div class="blk"><h3>怎麼練習看圖</h3>
+<div class="row"><span>① 先看 T1→T2→T3 是不是一次比一次淺</span></div>
+<div class="row"><span>② 看最右邊那段是不是很窄、成交量很小</span></div>
+<div class="row"><span>③ 在藍色虛線（樞紐點）設價格警示</span></div>
+<div class="row"><span>④ 突破那天成交量 &gt; 50 日均量 1.5 倍才算數</span></div>
+<div class="row"><span>⑤ 停損放在最後一次收縮的低點下方（通常 5–8%）</span></div>
+<div class="row"><span>⑥ 突破後漲超過樞紐 5% 就不追（已延伸）</span></div></div>
+<div class="blk"><h3>誠實提醒</h3><p class="dim" style="font-size:13.5px;margin:0">這份 VCP 分數是讓你<b style="color:#e6e8ee">學習與挑觀察名單</b>用的。之前 10 年回測（344 檔）中，「VCP 突破前」單獨進場勝率 62.2%、同股同季隨機買 63.0%，<b style="color:#e6e8ee">沒有贏過隨機</b>；所以真正的買進建議仍以上方驗證過的「抄底訊號」為準。程式判斷的 T1/T2/T3 是用規則自動切的，跟人眼看的不一定完全一樣，請搭配 Finviz 圖自己確認。</p></div>
+</div></template>
+<template id="tplInfo"><details><summary>使用說明、選股條件與驗證報告（點開）</summary>
+<div class="card" style="margin-top:12px"><h2 style="font-size:16px">完整使用說明</h2>
+<div style="font-size:14px;line-height:1.85;color:#c9cdd6">
+<b>每天流程</b>：收盤後打開 → 看前 20 有沒有綠框 → 有就照小圖上的價格下單，沒有就不買 → 想學就點其他小圖看 VCP 圖。<br>
+<b>點開一檔後依序看</b>：抄底建議（有沒有觸發）→ 這檔過去 5 年同訊號成績（常輸可跳過）→ 你的篩選條件（要在股票池內）→ VCP 圖（收縮越來越淺、最右邊越窄越好）→ 上方壓力位（5% 內有 ★★★★ 強壓力要小心）→ 趨勢模板（7 分以上較健康）。<br>
+<b>下單三件事一起做</b>：隔天開盤買（週線訊號是下週一）、掛停利（日線 +5%／週線 +10%）、掛停損（日線 -15%／週線 -20%）；日線 60 天、週線 52 週到期收盤賣。停利停損要成對用，改了就不適用回測勝率。輸一次 -15% 要贏 3 次才補回，所以單筆不超過總資金 10%。<br>
+<b>勝率怎麼算</b>：綠色是已驗證抄底訊號在你的股票池裡的 10 年回測（日線 79.8%、週線 77.9%；同股同季隨便買約 72%，每筆平均 +1.4% 對 +0.1%）。灰色是「離一年高點多遠＋最近波動」相同的股票過去的勝率（73–82%），樣本外驗證時前後差距只有約 3 個百分點，而且沒訊號時平均獲利接近 0，所以只能參考、不是買點。<br>
+<b>VCP 分數</b>：用來學看圖、挑觀察名單；回測中單獨使用沒有贏過隨機（62.2% 對 63.0%）。最好是同時有綠框訊號和好的 VCP。<br>
+<b>限制</b>：基本面是 10/1 快照，約每季請我更新；盤中打開訊號可能變；以上皆為回測，不構成投資建議。
+</div></div>
+
+<div class="card" style="margin-top:12px"><h2 style="font-size:16px">選股條件細節</h2><div class="hint" style="margin-top:0"><b>先用你的 Finviz 篩選條件縮小股票池，再找抄底訊號：</b><br>
+① 基本面（2026-10-01 快照）：美國公司、市值 &gt;3 億、營收季成長 &gt;5%、機構持股 &gt;10%、股價 &gt;$15、平均量 &gt;5 萬 → 1,369 檔。<br>
+② 技術面（每次即時算）：近 50 個交易日內曾同時符合「50 日線 &gt; 200 日線、股價高於 50 日線 10%、距 52 週高點 10% 內」→ 強勢股回檔才列入。<br>
+③ 股票池裡出現抄底訊號才建議買：<b>日線</b>＝超賣＋趨勢線第三次觸碰＋上方 3% 無月線壓力 → 明天開盤買，+5% 停利／-15% 停損；<b>週線</b>＝SNR 支撐守住＋確認＋超賣＋無季線壓力 → 下週一開盤買，+10%／-20%。<br>
+<b>回測（2016–2026）：</b>加上你的條件後，日線 794 筆勝率 79.8%（同股同季隨機 72.2%），每筆 +1.38%；週線 421 筆勝率 77.9%（隨機 68.8%），每筆 +3.34%。基本面條件沒有歷史快照，無法回測，只用來縮小範圍。</div>
+</div>
+
+
+
+<details><summary>驗證報告：出場設定（勝率怎麼提高的）</summary><div id="exits"></div></details>
+<details><summary>驗證報告：SNR（坤庭）× 指標組合</summary><div id="combo"></div></details>
+<details><summary>驗證報告：「不做」條件（19 條）</summary><div id="avoid"></div></details>
+<details><summary>驗證報告：單一指標（37 個）</summary><div id="single"></div></details>
+
+<details><summary>使用指南與限制</summary>
+<p style="color:#9aa0ae;font-size:14px;margin:12px 0 0">
+<b style="color:#e6e8ee">怎麼用：</b>日線建議：隔天開盤買，同時掛 +5% 停利、-15% 停損，60 個交易日都沒碰到就收盤出場。週線建議：下週一開盤買，+10%／-20%，最多 52 週。停利停損要<b style="color:#e6e8ee">成對使用</b>，改了就不適用回測勝率。單筆部位建議不超過總資金 10%。</p>
+<p style="color:#9aa0ae;font-size:14px"><b style="color:#e6e8ee">「超賣訊號」包含：</b>WaveTrend 跌破 -60、RSI&lt;30、CCI&lt;-150、跌破布林下軌後收回、KD 在 20 以下金叉、TD 九轉、創 30 根新低、MACD 零軸下二次金叉，任一個在 5 根 K 內出現即算。</p>
+<p style="color:#9aa0ae;font-size:14px"><b style="color:#e6e8ee">必須知道的事：</b><br>
+① 高勝率是用「近停利、遠停損」換來的：損益兩平勝率日線 75%、週線 66.7%，實際勝率 79.7%／76.6%，緩衝約 5–10 個百分點。輸一次要贏 2–3 次才補回，停損一定要掛。<br>
+② 爛年份：日線 2018（73.6%）、2022（73.5%，約打平）；週線 2018（67.3%）、2022（66%，小虧）。用「大盤弱就不做」來避開並不划算（見「不做」條件報告），風險要靠停損與單筆部位控制。<br>
+③ 週線只看「已收完的那一週」；週一到週四打開看到的是上週五收盤的結果。<br>
+④ 股票池是現在還在交易的公司（存活者偏差）；未計手續費、滑價、跳空；同一天碰到停利停損一律算停損。<br>
+⑤ 坤庭課程原本是黃金 M15／H1；這裡用美股日線／週線，照同樣比例放大框架。SNR 的 DE 與設置單獨使用在美股沒有贏過隨機，只有跟超賣指標交錯才有效。</p>
+</details>
+
+</details>
+</template>
+<div id="modal" class="modal" hidden><div class="mbox"><div class="mtop"><button id="mclose" class="btn">✕ 關閉（Esc）</button></div><div id="panel"></div></div></div>
+
+<script>
+const FUNDRAW = "A,48.5,8,94;AA,10.9,31,85;AAMI,3.3,45,88;AAOI,8.4,86,61;AAON,6.8,101,85;AAPL,4840.6,16,66;ABBV,460.4,10,77;ABNB,94.5,17,65;ABT,170.5,13,81;ACAD,3.4,16,74;ACIW,5.0,7,105;ACLS,4.1,11,104;ACMR,5.8,36,77;ACNB,0.6,5,41;AD,2.9,90,22;ADBE,95.4,13,88;ADC,8.2,17,117;ADEA,2.8,12,106;ADI,191.4,40,93;ADM,37.9,7,89;ADP,104.5,7,91;ADPT,4.6,22,85;ADSK,44.7,16,100;ADUS,2.0,8,108;AEHR,3.2,34,75;AEIS,11.3,30,102;AEO,3.0,8,104;AEP,64.1,7,94;AFG,11.4,6,71;AFRM,23.4,33,81;AGIO,2.0,259,97;AGL,1.3,7,65;AGM,2.3,25,77;AGX,5.3,62,101;AGYS,2.8,14,108;AHR,11.9,25,100;AII,0.5,55,57;AIN,1.7,6,106;AIP,1.2,46,68;AIR,4.0,24,103;AIT,12.2,10,97;AIZ,13.0,9,101;AJG,59.2,31,94;AKAM,15.2,5,114;AKR,2.7,13,108;AKTS,1.1,111,43;ALAB,61.8,104,75;ALB,12.2,31,99;ALG,1.9,8,99;ALGM,6.8,27,81;ALGT,2.0,37,99;ALH,4.2,7,29;ALK,4.3,10,93;ALL,56.3,12,85;ALLY,11.2,11,89;ALMR,2.4,82,29;ALNT,1.9,10,78;ALNY,33.3,67,102;ALRM,2.7,9,100;ALRS,0.8,7,66;ALSN,9.3,92,104;AM,9.5,8,61;AMAL,1.4,24,96;AMAT,415.8,25,85;AMBA,3.1,13,83;AMBQ,1.7,90,78;AMD,1008.4,50,74;AME,56.8,15,91;AMG,9.6,30,98;AMGN,226.3,10,84;AMKR,13.0,26,48;AMP,43.7,12,90;AMPH,1.1,5,68;AMRC,1.1,9,70;AMRX,7.1,10,48;AMSC,1.4,30,75;AMSF,0.4,13,95;AMZN,2692.3,20,68;ANDG,6.1,24,90;ANET,253.6,38,73;ANGO,0.6,8,81;ANIP,1.6,26,115;AORT,1.1,11,97;APA,14.8,9,112;APAM,2.9,9,99;APEI,0.8,6,95;APG,16.9,13,86;APH,206.3,55,97;APLD,7.0,407,69;APO,68.7,64,74;APP,96.0,53,69;APPF,7.3,19,67;APPN,2.6,19,56;AR,10.3,13,92;ARCB,2.8,16,105;ARES,38.7,10,100;ARMK,14.2,9,101;ARQT,3.3,59,83;ARW,11.6,32,106;ARWR,9.3,171,77;ARXS,21.3,25,14;ASA,1.0,243,27;ASB,5.3,24,82;ASH,3.1,7,101;ASIC,1.2,46,12;ASMB,0.5,39,42;ASST,2.6,95,58;ASTE,0.9,24,97;ASTH,1.8,49,63;ASTS,22.6,2627,55;ATEN,2.0,15,108;ATEX,1.6,38,70;ATI,25.7,11,95;ATKR,3.2,8,94;ATLC,1.3,83,27;ATMU,3.5,16,110;ATR,7.6,6,97;ATRC,2.9,13,106;ATRO,2.9,27,77;AU,48.0,27,70;AUB,5.3,36,88;AUGO,6.5,76,39;AVAV,7.1,6,62;AVBC,0.4,17,48;AVBH,0.3,29,54;AVGO,1675.8,86,80;AVNT,3.7,6,107;AVT,8.2,48,109;AVY,12.9,11,102;AWI,6.8,11,104;AWK,25.3,6,105;AWR,3.3,11,85;AX,4.9,18,87;AXGN,2.5,23,93;AXON,34.0,35,91;AXP,204.6,13,65;AXSM,9.7,46,75;AXTI,5.1,165,73;AZO,45.5,6,98;AZTA,1.5,12,107;AZZ,4.0,6,96;BA,148.2,8,73;BAC,374.5,17,71;BALL,14.7,20,89;BAM,71.5,61,17;BAND,1.9,22,96;BANF,3.5,9,57;BANR,2.3,7,95;BAX,12.3,5,111;BBIO,13.0,120,87;BBNX,1.0,38,75;BBT,2.3,144,87;BC,4.1,8,106;BCC,2.6,5,98;BCO,4.2,7,111;BCPC,5.2,11,93;BDC,4.2,12,107;BDSX,0.3,34,29;BDX,48.8,5,98;BE,82.2,166,85;BELFA,2.9,25,101;BELFB,3.5,25,99;BEN,16.3,14,54;BEPC,9.8,13,30;BETA,5.1,146,29;BFAM,3.2,7,104;BFC,1.6,57,38;BFS,1.1,8,85;BFST,1.0,13,59;BG,20.5,88,80;BH,1.1,8,26;BHB,0.6,42,64;BHE,3.0,18,128;BHF,2.9,87,93;BHRB,1.4,22,45;BILL,3.7,14,108;BIPC,4.4,9,73;BJ,11.6,16,114;BJRI,1.3,6,103;BKNG,121.3,8,99;BKSY,0.9,50,76;BKV,2.3,19,43;BL,1.6,9,90;BLBD,1.7,30,106;BLFS,1.9,21,86;BLLN,5.1,64,36;BMNR,16.4,2168,40;BMRC,0.4,275,68;BMRN,11.6,20,103;BMY,127.1,6,83;BNL,3.7,8,101;BNY,97.6,13,87;BOH,2.7,13,85;BOKF,7.7,10,38;BOOT,3.6,18,118;BOW,1.1,23,93;BOX,4.6,9,104;BPOP,9.9,8,94;BR,18.4,7,98;BRC,3.9,10,80;BRK.B,1066.0,10,52;BRKR,9.7,5,96;BRO,20.7,32,86;BROS,7.1,32,95;BRUN,1.3,270,23;BRZE,2.9,26,90;BSX,62.9,8,94;BSY,10.2,13,52;BTSG,11.9,23,94;BTU,2.9,13,93;BURL,17.1,11,104;BWB,0.6,18,66;BWFG,0.5,20,57;BWIN,4.4,30,95;BWMN,0.7,20,55;BWXT,12.5,18,94;BX,140.7,29,68;BY,1.6,12,56;C,212.3,16,82;CAC,0.9,20,76;CACC,5.5,9,60;CACI,13.7,18,103;CAH,54.4,6,91;CAI,8.6,45,57;CAKE,5.3,8,97;CALX,2.2,21,97;CARE,0.7,68,68;CARG,2.8,13,92;CART,10.0,14,62;CASS,0.7,12,62;CASY,22.3,24,91;CAT,370.7,24,73;CATY,3.9,14,78;CAVA,6.3,31,89;CBAN,0.4,25,63;CBC,7.4,14,18;CBLL,0.9,33,70;CBNK,0.6,9,47;CBOE,29.2,23,91;CBRE,37.6,16,99;CBRS,42.9,74,56;CBSH,7.8,14,77;CBT,3.9,6,105;CBU,3.1,12,78;CCK,11.3,16,102;CCNE,1.0,51,68;CDE,18.1,126,79;CDNA,3.4,52,101;CDNL,1.4,114,110;CDNS,95.4,24,91;CDRE,1.1,32,72;CDW,16.5,10,113;CE,4.7,9,104;CECO,4.1,54,88;CEG,95.7,23,83;CELH,7.0,11,71;CENX,3.5,20,77;CEVA,1.0,13,84;CF,17.2,18,107;CFFI,0.3,12,42;CFG,26.3,15,99;CFR,9.5,6,93;CGNX,10.2,17,106;CHE,6.6,9,99;CHEF,4.5,13,100;CHH,4.6,7,93;CHMG,0.4,242,51;CHRD,7.3,84,103;CHRW,17.3,19,105;CHWY,7.4,7,57;CHYM,10.1,27,52;CI,71.3,7,93;CIEN,49.8,37,91;CINF,24.5,32,74;CIVB,0.5,14,66;CLFD,0.4,13,52;CLH,16.3,12,95;CLMB,0.6,9,79;CLMT,4.6,41,45;CMC,6.8,23,95;CMCO,0.4,125,90;CMG,40.6,9,92;CMI,70.9,9,87;CNK,4.2,16,104;CNO,4.9,12,97;CNOB,1.5,134,76;CNP,24.0,11,107;CNS,3.8,12,57;CNXN,2.3,12,42;COCO,3.4,28,86;COF,118.2,1111,88;COHR,56.8,34,88;COHU,3.2,38,115;COKE,12.5,11,63;COLB,8.0,35,97;COLL,0.7,6,121;CON,4.3,10,89;COP,150.8,35,86;COR,59.5,5,98;CORT,12.5,32,77;CORZ,5.1,109,111;COSO,0.3,16,53;COST,401.2,11,74;CPAY,25.9,21,101;CPF,0.9,8,88;CR,11.8,26,79;CRAI,1.1,13,95;CRBG,14.7,26,73;CRC,4.5,33,104;CRCL,21.2,7,49;CRI,1.2,5,109;CRM,194.3,11,88;CRS,19.1,13,96;CRUS,6.0,13,104;CRVL,3.8,11,55;CRWD,271.1,26,78;CRWV,48.0,112,54;CSCO,422.0,18,82;CSGP,11.3,18,105;CSL,12.7,8,104;CSQR,2.6,15,10;CSTL,1.1,20,82;CSW,4.7,33,102;CSWC,1.5,9,27;CSX,85.5,10,81;CTAS,78.2,11,70;CTBI,1.3,11,63;CTEV,0.4,7,31;CTO,0.8,16,68;CTRE,8.6,43,108;CTRI,2.0,33,101;CTRN,0.4,11,73;CTS,1.7,7,100;CUBI,2.5,10,102;CURB,3.2,53,121;CUZ,4.5,12,107;CVBF,3.8,42,84;CVCO,4.3,10,102;CVEO,0.3,11,89;CVI,5.2,55,104;CVLG,0.8,10,59;CVLT,6.2,11,110;CVNA,68.8,52,104;CVS,109.2,7,91;CVSA,4.2,10,105;CVX,401.3,53,71;CW,19.9,5,86;CWBC,0.7,31,58;CWEN,5.9,23,90;CWST,5.1,17,123;CWT,2.8,16,91;CXT,2.8,22,123;CXW,3.2,27,89;CYRX,0.9,8,90;CZNC,0.4,53,34;D,52.5,18,83;DAKT,0.8,7,76;DAL,54.5,19,83;DAR,9.5,16,106;DASH,79.6,36,82;DAVE,4.2,30,93;DCI,10.1,8,91;DCO,2.6,12,99;DCOM,1.7,12,89;DCTH,0.6,21,41;DDOG,98.8,36,87;DEA,1.2,9,80;DECK,10.7,6,99;DELL,340.3,58,38;DG,26.5,5,100;DGII,2.9,29,106;DGX,25.7,10,97;DHR,154.8,6,84;DINO,19.4,53,89;DIOD,4.4,22,101;DIS,178.8,7,78;DJCO,0.9,15,78;DK,4.4,48,103;DKL,3.1,56,21;DKS,12.0,53,79;DLR,65.8,30,99;DLTR,21.6,7,100;DMLP,1.4,73,26;DNOW,2.7,108,108;DNTH,5.0,294,125;DOC,13.8,11,98;DOCN,15.7,29,87;DOCS,5.1,7,74;DOCU,12.9,9,96;DOV,25.2,7,93;DOW,19.3,20,79;DRI,22.1,5,101;DRS,9.8,10,27;DSGR,1.6,11,85;DT,16.9,16,108;DTM,12.1,11,89;DUOL,6.9,18,87;DVA,11.2,5,48;DVN,53.3,64,89;DXCM,33.1,13,105;DXPE,2.8,16,77;DY,8.1,46,79;EAT,8.2,5,113;EBAY,46.8,15,94;EBC,4.5,28,92;ECG,6.0,34,87;ECL,75.8,10,92;ECPG,2.0,11,108;ED,37.8,13,78;EE,3.6,61,106;EFX,16.3,11,103;EGP,10.5,9,105;EHC,12.1,10,99;EL,33.5,6,65;ELAN,11.2,10,114;ELF,6.2,36,90;ELMT,0.6,35,38;ELS,11.6,6,110;EME,33.3,20,96;EMN,7.2,10,95;EMR,87.2,7,84;ENSG,10.0,17,92;ENTG,23.7,11,109;ENVA,4.2,31,97;EOG,73.0,59,98;EPAC,1.8,6,102;EPD,76.5,61,25;EPR,4.2,11,84;EPRT,5.6,18,119;EQBK,1.0,38,67;EQIX,98.7,17,100;EQPT,4.5,26,30;EROK,2.7,74,79;ESAB,4.1,13,106;ESE,6.9,14,102;ESI,8.8,56,106;ESQ,1.4,21,55;ESTA,1.9,32,80;ET,67.6,78,32;ETON,1.5,99,54;ETR,46.9,6,97;ETSY,6.6,6,115;EVER,0.7,25,94;EVR,10.5,19,94;EVTC,1.6,20,102;EW,49.9,14,93;EWBC,17.0,16,93;EXC,41.2,10,94;EXEL,14.7,11,95;EXLS,5.5,16,106;EXPD,24.1,32,97;EXPE,31.8,14,103;EXPO,3.2,12,100;EXTR,2.8,10,100;EZPW,1.8,35,113;FA,3.1,15,64;FAF,6.3,15,98;FANG,51.7,52,73;FAST,56.6,15,87;FBIZ,0.6,16,73;FBK,2.6,130,83;FBNC,2.5,16,84;FBP,3.9,9,99;FCBC,0.9,37,37;FCCO,0.3,27,64;FCF,2.0,10,80;FCFS,9.2,29,100;FCN,3.7,5,115;FCNCA,23.1,8,118;FCPT,2.4,8,105;FDS,9.8,6,115;FDUS,0.8,9,22;FDX,67.5,13,83;FE,24.8,9,91;FEIM,1.0,70,52;FELE,4.2,6,91;FET,0.9,13,88;FFBC,3.3,16,86;FFIN,4.5,10,67;FFIV,25.2,11,100;FHB,3.0,6,113;FHI,4.0,18,95;FHN,10.8,9,93;FIBK,3.3,7,97;FICO,13.8,26,101;FIG,11.6,48,41;FIGR,6.5,121,50;FIS,17.3,29,101;FISI,0.8,7,73;FITB,45.3,52,94;FIVE,12.0,23,102;FIVN,2.6,10,108;FIX,57.6,50,95;FLEX,40.4,21,97;FLOC,1.6,22,90;FLR,6.4,9,99;FLY,3.9,657,44;FLYW,2.2,27,88;FMBH,1.3,26,57;FNB,6.0,7,94;FNF,10.4,11,85;FORM,11.6,32,94;FOUR,2.9,34,75;FOX,25.0,28,97;FOXA,26.2,28,97;FPS,11.0,94,56;FR,8.2,8,102;FRBT,0.9,15,41;FROG,12.0,29,96;FRPT,2.8,15,135;FRST,0.4,44,94;FRT,9.5,7,94;FSBC,1.0,28,48;FSLY,4.1,23,96;FSS,6.8,19,103;FSUN,1.8,42,66;FTAI,17.2,41,98;FTK,1.0,70,34;FTNT,130.1,26,72;FTV,16.6,8,105;FUL,2.6,5,105;FULT,4.2,14,83;FVCB,0.3,26,53;FWONA,23.0,18,101;FWONK,23.1,18,101;FWRD,0.5,9,77;GABC,1.8,11,54;GAIN,0.6,20,18;GATX,6.0,35,103;GBCI,5.5,41,88;GCT,1.9,28,69;GD,89.8,8,82;GDDY,12.4,7,107;GE,325.1,21,81;GEHC,29.5,6,94;GEN,13.5,6,92;GEO,3.9,15,89;GEV,253.6,22,81;GFF,4.3,7,81;GFL,15.1,16,74;GFS,26.5,6,27;GH,23.8,44,101;GHM,1.0,29,95;GIC,1.6,8,35;GILD,184.0,10,91;GKOS,9.8,50,104;GL,12.7,8,86;GLAD,0.4,13,13;GLP,1.6,47,50;GLPI,11.2,9,99;GLW,130.9,17,75;GMED,10.1,6,90;GNK,1.2,69,65;GNRC,12.1,11,92;GOLD,1.2,99,61;GOLF,4.8,14,55;GOOG,4189.6,24,66;GOOGL,4212.5,24,66;GPC,17.3,6,98;GPN,21.7,69,94;GRAL,6.1,26,68;GRND,2.6,33,32;GS,271.0,43,73;GSHD,1.6,21,103;GTES,6.6,7,124;GTLB,8.0,21,83;GTX,4.8,7,100;GTY,1.7,11,95;GVA,5.1,29,115;GWRE,12.3,15,96;GWW,58.8,10,76;HAE,4.8,6,110;HAFC,0.9,23,97;HALO,12.5,48,111;HAS,12.4,16,100;HASI,4.6,804,107;HBAN,30.3,48,89;HBB,0.5,12,34;HBNC,1.0,17,80;HBT,1.3,38,27;HCA,93.2,9,63;HCC,4.6,71,98;HCI,2.2,11,73;HD,279.2,6,76;HEI,42.4,23,82;HEI.A,36.0,23,82;HELE,0.6,8,96;HFWA,1.1,53,81;HGV,2.7,6,71;HHH,4.3,330,47;HIG,33.3,8,95;HII,10.6,11,90;HIMS,6.9,38,67;HIPO,0.8,23,57;HIW,3.2,7,119;HL,11.4,52,73;HLIO,2.3,9,101;HLNE,4.8,56,111;HMN,1.8,8,106;HNGE,7.9,53,79;HNI,3.3,121,89;HOMB,5.6,9,78;HONA,48.6,5,78;HOOD,101.8,32,69;HPE,83.6,34,90;HPQ,28.8,13,95;HQY,7.3,8,111;HRI,4.2,20,99;HRMY,2.3,30,98;HROW,1.2,11,52;HSIC,9.5,7,98;HSTM,0.9,13,74;HSY,31.6,7,93;HTFL,4.4,48,90;HTGC,3.1,8,30;HTH,2.1,5,57;HTO,2.5,6,107;HUBB,24.0,15,98;HUBS,10.8,20,99;HUM,46.1,26,101;HURN,2.4,16,108;HUT,10.5,81,72;HVT,0.4,8,87;HWC,5.8,8,97;HWKN,2.6,8,79;HWM,90.5,24,93;HXL,6.4,8,115;IA,0.3,11,58;IBCP,0.8,11,84;IBEX,0.6,12,86;IBKR,38.7,26,87;ICHR,2.3,23,92;IDR,0.4,13,49;IDT,2.0,7,62;IDXX,41.3,10,97;IESC,12.9,40,46;IEX,16.8,6,105;IIIN,0.6,10,84;ILMN,41.1,9,105;INCY,24.5,38,87;INDB,3.7,42,87;INDV,4.2,14,98;INGM,6.2,14,26;INOD,2.3,58,59;INSM,25.4,296,104;INSW,5.4,140,84;INTA,2.9,13,68;INTC,628.0,25,68;INTU,77.7,14,92;INVA,1.5,19,102;INVH,15.5,10,94;INVX,1.9,9,75;IONQ,17.6,287,50;IOSP,2.4,12,101;IOT,22.7,30,71;IPGP,3.3,11,72;IQV,44.1,9,99;IR,29.0,9,106;IRM,32.8,19,88;IRTC,3.8,20,103;ISRG,144.2,19,89;ISTR,0.4,66,66;ITIC,0.5,17,52;ITT,17.9,51,100;ITW,73.4,6,86;IVT,2.3,13,92;IVZ,13.4,20,80;J,16.1,34,94;JAN,9.0,45,97;JBHT,21.1,19,78;JBL,30.5,29,99;JCAP,1.1,11,39;JEF,10.4,9,58;JLL,14.1,11,96;JMSB,0.3,24,50;JNJ,635.6,7,76;JOE,3.7,23,89;JPM,876.8,30,75;KAI,3.1,23,112;KALU,2.3,53,103;KDP,41.9,76,113;KEX,6.9,8,102;KEY,21.1,10,90;KEYS,62.2,37,92;KFY,4.0,7,95;KGS,5.4,21,105;KIDS,0.6,15,66;KKR,82.8,8,63;KLAC,257.3,15,93;KMI,66.8,11,71;KMT,2.3,43,108;KMTS,1.7,60,62;KMX,7.8,18,105;KN,3.1,14,103;KNF,2.9,13,99;KNSL,7.4,17,96;KNTK,8.1,36,76;KNX,10.3,13,101;KO,370.9,7,67;KRMN,4.3,58,96;KRT,1.0,10,37;KRUS,0.5,16,80;KRYS,9.8,24,92;KTB,3.4,19,106;KTOS,8.0,31,83;KVYO,4.6,26,56;KWR,2.7,10,92;KYMR,9.4,466,93;LAMR,14.6,6,86;LASR,2.3,34,92;LAUR,5.3,17,101;LB,6.3,41,102;LBRT,3.0,14,113;LCLN,2.4,51,74;LDOS,15.7,7,82;LECO,14.4,12,84;LEGH,0.7,32,52;LEGN,3.8,52,54;LEU,2.8,14,86;LEVI,7.5,8,31;LFTO,2.7,35,14;LFUS,10.8,20,103;LGIH,1.1,6,96;LGN,5.8,111,86;LGND,6.2,34,116;LH,24.9,6,103;LHX,44.1,8,89;LIFE,2.1,113,27;LIME,1.8,24,17;LINC,0.7,22,89;LIND,2.1,19,82;LITE,87.7,109,94;LKFN,1.4,9,86;LLY,1025.9,48,90;LLYVA,8.9,6,71;LLYVK,9.0,6,71;LMAT,1.9,10,102;LMB,0.6,22,84;LMND,3.5,79,65;LMT,117.9,11,76;LNC,7.6,13,77;LNG,55.5,23,91;LOAR,5.8,39,62;LOB,1.7,12,72;LOPE,4.0,7,107;LOW,101.9,8,80;LPG,2.3,124,73;LPLA,24.1,36,107;LQDA,2.3,1843,65;LQDT,1.3,8,81;LRCX,420.1,30,88;LSCC,18.0,62,102;LSTR,5.7,18,98;LTC,2.3,65,81;LTH,8.9,14,96;LUV,20.4,16,94;LW,5.7,6,97;LWAY,0.3,24,36;LYFT,5.7,16,106;LYTS,0.8,51,99;LYV,39.1,9,86;MA,485.7,14,90;MAIR,12.2,21,26;MAN,2.6,8,116;MANH,12.0,9,106;MAR,92.9,11,68;MATX,6.6,17,87;MBGL,5.1,7,30;MBIN,2.3,37,99;MBUU,0.5,43,94;MBWM,1.0,19,71;MC,4.6,12,109;MCB,1.1,14,87;MCBS,1.0,34,27;MCFT,0.5,63,53;MCHP,42.2,38,102;MCK,107.0,8,92;MCO,78.8,15,70;MCS,0.9,13,68;MCY,5.5,14,48;MDB,28.2,30,95;MDGL,11.6,71,72;MDLN,46.0,12,61;MDU,3.9,7,93;MEDP,17.5,17,89;MET,59.6,10,78;META,1868.9,28,68;MFP,1.8,13,35;MGNI,3.6,11,102;MGY,5.6,50,89;MHK,7.4,7,87;MIAX,3.4,18,81;MIDD,4.7,10,99;MIRM,5.5,38,100;MITK,0.8,18,93;MKC,12.4,17,91;MKL,21.2,13,81;MKSI,17.9,28,104;MLI,13.4,25,96;MLM,33.8,21,86;MLR,0.6,12,96;MMED,5.5,17,13;MMI,1.1,18,66;MMSI,5.2,10,108;MNST,81.6,20,69;MOD,9.8,28,101;MOG.A,12.0,15,91;MORN,7.2,10,66;MP,8.1,120,75;MPB,0.9,45,54;MPC,112.7,54,79;MPLX,56.8,11,20;MPTI,0.3,14,72;MPWR,65.6,48,99;MQ,1.8,17,75;MRAM,0.4,42,54;MRCY,5.0,6,105;MRK,357.7,5,82;MRP,4.2,32,88;MRSH,81.5,6,95;MRVL,230.4,37,81;MS,292.2,28,63;MSA,6.9,6,93;MSBI,0.7,18,71;MSCI,39.4,12,95;MSEX,1.0,14,84;MSFT,3855.6,18,75;MSGE,3.8,27,80;MSGS,9.7,37,69;MSI,73.9,13,90;MSM,6.9,8,84;MSTR,60.6,7,58;MTB,30.8,6,93;MTDR,6.4,27,98;MTRN,5.5,42,99;MTSI,21.9,36,97;MTUS,0.8,12,87;MTW,0.8,10,78;MTZ,16.6,23,77;MU,1193.5,379,79;MUR,5.3,36,91;MUSA,9.2,41,87;MWH,4.9,77,43;MXL,8.3,55,83;MYE,1.2,10,98;MYRG,4.5,20,101;NAVN,5.6,35,41;NBBK,0.9,49,64;NBHC,1.7,22,96;NBIX,14.5,39,101;NBN,1.0,11,76;NBTB,2.6,18,69;NCNO,2.0,8,112;NDAQ,51.8,15,87;NDSN,18.2,10,77;NEE,155.8,12,86;NEM,119.8,15,82;NEO,2.4,11,107;NESR,2.5,59,71;NET,123.7,36,82;NEU,8.3,7,65;NFLX,287.7,13,83;NGS,0.4,24,91;NHC,3.5,9,67;NHI,3.2,34,78;NIC,3.4,86,64;NIQ,5.2,8,32;NJR,5.1,17,80;NLY,13.9,479,62;NMIH,2.9,8,102;NNN,7.8,8,95;NOC,69.1,5,84;NOG,2.4,16,104;NOVT,5.4,10,122;NOW,144.1,24,84;NP,3.7,33,27;NPK,1.1,22,64;NPO,6.4,18,102;NRG,20.4,11,100;NRIM,0.5,8,75;NSC,69.1,11,77;NSIT,4.6,15,115;NSSC,1.3,10,104;NTAP,41.0,30,101;NTCT,2.9,13,96;NTNX,19.1,16,92;NTRA,59.8,38,97;NTRS,31.1,36,86;NTSK,7.0,29,57;NTST,1.8,27,154;NUE,52.4,23,80;NVDA,5586.2,106,71;NVEC,0.5,81,93;NVST,3.8,7,120;NWE,4.2,15,98;NWPX,1.0,20,91;NWS,16.0,11,90;NWSA,15.4,11,90;NXST,4.9,62,101;NXT,11.9,8,106;NYT,10.2,11,89;O,50.5,10,80;OBK,1.6,33,68;OCFC,1.6,32,73;ODC,1.3,9,55;ODFL,36.0,10,81;OFG,2.1,10,101;OFRM,0.7,42,46;OHI,14.5,11,83;OII,4.3,10,106;OKE,53.4,53,83;OKTA,36.4,11,95;OLLI,5.1,9,121;OLP,0.5,10,50;OMC,20.8,63,110;OMCL,1.6,7,108;OMDA,1.3,43,77;ON,29.8,9,105;ONB,9.2,29,87;ONTO,15.2,35,101;OOMA,0.6,25,74;OPLN,4.1,15,93;OPY,1.3,24,42;ORA,5.4,11,97;ORCL,416.6,30,43;ORI,8.9,13,79;ORLY,68.8,8,90;OSBC,1.2,23,78;OSCR,9.5,70,62;OSK,8.0,7,94;OTIS,24.4,7,95;OUST,2.8,56,51;OUT,4.9,14,105;OVV,16.2,30,96;OXY,56.5,53,58;P,43.9,38,84;PAA,16.6,66,42;PACS,6.6,9,32;PAG,13.2,6,28;PAGP,6.0,66,82;PANW,321.1,34,84;PARR,4.1,57,103;PAY,3.9,29,53;PAYC,10.0,10,97;PAYX,35.7,6,85;PB,8.0,26,69;PBAM,0.5,14,14;PBF,9.4,56,91;PBH,2.2,6,115;PBT,1.5,34,30;PCOR,8.0,16,98;PCRX,1.0,6,109;PCTY,7.7,11,88;PDFS,2.2,19,93;PDLB,0.5,18,49;PEBO,1.3,11,68;PECO,5.2,7,91;PEGA,5.7,9,59;PEN,12.5,15,88;PENG,2.8,48,121;PEP,172.5,6,80;PFG,23.8,6,81;PFGC,14.4,7,102;PGC,0.8,23,79;PGNY,1.9,5,104;PGR,121.0,7,89;PGY,1.4,19,42;PH,120.1,10,89;PHIN,2.2,6,105;PI,5.5,11,109;PII,2.9,9,91;PINE,0.3,35,69;PINS,10.8,18,94;PIPR,4.4,25,93;PJT,5.7,20,90;PKE,0.6,19,92;PKG,20.1,15,101;PKOH,0.6,10,59;PL,5.9,58,64;PLBC,0.4,43,50;PLD,124.4,12,97;PLMR,3.3,55,94;PLOW,0.9,10,97;PLPC,2.0,25,70;PLTR,449.6,93,61;PLXS,7.0,28,101;PM,296.8,10,84;PNC,87.5,24,85;PNFP,13.9,137,88;PNTG,1.4,36,92;PNW,11.1,7,109;PODD,9.1,24,106;POWL,6.7,9,78;PPG,23.0,7,94;PR,17.9,55,93;PRAA,0.7,29,86;PRCH,1.9,12,80;PRCT,1.1,19,98;PRG,1.2,22,110;PRI,8.4,9,96;PRK,3.2,26,48;PRLB,2.2,11,95;PRM,4.2,31,89;PRSU,1.4,14,89;PRU,39.1,14,64;PRVA,2.5,21,86;PSMT,5.1,12,104;PSNL,1.7,30,62;PSTL,0.8,22,82;PSX,102.7,53,80;PTCT,5.5,102,113;PTGX,9.1,3749,102;PTRN,3.1,47,28;PUBM,0.9,11,61;PWR,97.0,41,92;Q,26.5,22,79;QCRH,1.6,16,79;QLYS,6.5,11,109;QMCO,1.3,26,18;QNST,0.9,43,95;QNT,12.8,279,87;QTWO,3.5,13,113;RAL,7.7,13,99;RAMP,2.3,10,102;RARE,1.5,28,96;RBA,14.6,11,96;RBB,0.4,17,59;RBC,15.7,19,95;RBLX,30.6,36,81;RBRK,23.9,38,69;RCKY,0.3,12,84;RCL,71.3,6,87;RDDT,28.1,61,68;RDN,4.1,93,97;RDNT,5.4,25,99;RDVT,1.3,23,66;REG,13.3,9,92;REGN,75.9,17,94;RELY,4.5,20,88;REPX,0.9,94,64;REX,1.4,18,88;RGA,16.1,19,103;RGEN,10.8,12,119;RGLD,19.7,116,85;RGR,0.7,19,61;RGTI,5.3,185,66;RHLD,0.9,296,46;RHP,8.1,14,96;RIOT,7.5,14,88;RJF,30.4,15,81;RKLB,42.0,62,54;RL,21.3,14,67;RLI,5.1,15,96;RMBS,11.5,20,94;RMD,31.7,9,79;RMR,0.6,8,71;RNG,6.4,6,106;RNGR,0.4,26,79;RNST,3.5,45,92;ROAD,5.1,28,98;ROCK,1.2,65,105;ROG,2.7,7,96;ROK,48.4,8,91;ROKU,22.6,22,81;ROL,14.5,8,62;ROP,35.4,9,106;ROST,74.4,13,95;RPM,12.5,7,86;RPRX,33.3,16,85;RRBI,0.7,10,47;RRC,8.7,9,103;RS,19.5,27,84;RSI,4.7,46,107;RTX,250.6,14,81;RVLV,1.5,12,65;RXO,3.4,25,98;RYAN,9.7,7,98;RYN,5.4,272,89;RYTM,6.6,47,95;RYZ,1.2,72,86;S,8.3,21,79;SAH,1.9,8,46;SAIA,8.8,17,107;SAIC,5.5,6,88;SAIL,11.7,17,19;SANM,11.5,70,95;SBCF,3.0,38,95;SBRA,5.0,25,104;SBSI,0.9,8,59;SCHW,169.2,21,85;SCL,1.4,15,89;SCSC,1.2,17,110;SDGR,2.3,8,90;SDRL,2.7,19,93;SEI,5.4,47,115;SEIC,12.3,15,77;SENEA,1.2,36,64;SEPN,1.8,22376,58;SEZL,3.7,52,45;SF,10.6,13,93;SFBS,4.3,30,75;SFNC,3.2,14,83;SFST,0.6,25,75;SHAK,2.5,17,92;SHAZ,1.9,412,31;SHBI,0.7,11,69;SHC,5.3,9,71;SHOO,3.2,19,102;SHW,76.8,8,85;SI,0.4,56,41;SIBN,0.8,15,102;SITM,19.9,127,76;SJM,12.6,5,89;SKT,4.1,11,95;SKWD,2.3,53,91;SKYW,3.8,7,96;SLAB,7.4,18,94;SLDE,2.6,48,51;SLG,3.7,27,104;SLGN,3.6,7,93;SLM,4.2,8,113;SLP,0.4,7,76;SM,8.1,176,94;SMA,1.8,11,96;SMBC,0.8,8,59;SMBK,0.8,16,66;SMC,0.4,11,41;SMCI,27.0,93,69;SMTC,16.8,33,101;SMTI,0.3,9,18;SN,25.4,22,70;SNDA,1.8,137,54;SNDK,257.1,372,80;SNDR,5.6,10,37;SNDX,1.7,92,115;SNEX,7.7,15,84;SNOW,119.1,35,80;SNPS,91.3,42,94;SNX,20.3,38,95;SOFI,20.5,43,51;SOLS,8.9,11,87;SONO,2.1,9,88;SPB,1.8,8,110;SPCX,2054.8,92,26;SPFI,0.8,23,47;SPG,75.4,19,96;SPGI,117.2,10,90;SPHR,4.7,11,99;SPSC,3.0,6,111;SPXC,8.5,23,97;SR,4.5,19,93;SRCE,2.0,16,57;SRZN,0.4,409,44;SSD,7.0,6,102;SSNC,18.5,10,87;SSRM,6.8,9,77;ST,6.0,5,107;STAA,1.2,111,64;STAG,6.9,8,97;STBA,1.7,6,75;STC,1.5,24,99;STE,20.4,7,100;STLD,31.8,33,84;STRL,15.0,90,87;STT,47.6,18,95;SUN,9.9,165,50;SUNB,29.6,11,104;SUNC,3.7,165,80;SUPN,2.5,32,98;SXT,5.5,12,101;SYBT,2.4,20,66;SYK,105.8,9,82;SYM,25.5,22,79;SYNA,4.0,9,108;TALO,2.7,57,76;TARS,3.5,69,89;TATT,0.5,23,82;TCBI,4.0,9,103;TCBK,1.6,10,73;TCBX,0.7,32,61;TCMD,0.5,9,90;TDG,60.2,23,97;TDY,28.1,10,98;TEM,14.7,22,57;TENB,4.0,9,113;TER,63.7,104,99;TEX,6.0,51,104;TFC,55.8,8,78;TFIN,1.4,12,93;TFSL,4.5,15,14;TFX,5.3,29,114;TGLS,1.6,16,47;TGT,70.6,5,88;TGTX,7.9,70,83;TH,2.0,39,51;THC,21.0,7,100;THFF,0.9,15,85;THRM,1.0,11,107;TILE,2.0,5,105;TJX,145.1,5,94;TKO,33.7,18,103;TKR,8.0,7,100;TLN,15.6,111,83;TMDX,2.9,21,103;TMO,248.3,10,93;TMP,1.4,7,71;TMUS,175.0,8,48;TNDM,1.1,6,107;TOST,16.9,23,86;TOWN,3.3,118,63;TPB,1.2,23,95;TPC,4.3,19,86;TPG,17.4,110,81;TPL,22.6,31,74;TPR,22.8,9,102;TRC,0.4,72,59;TREE,0.3,25,84;TREX,4.4,8,102;TRIN,1.7,19,26;TRMB,13.6,11,102;TRMK,2.6,9,87;TRNO,7.1,11,107;TRNS,0.8,22,103;TROW,22.3,11,90;TRST,0.9,11,73;TRU,12.1,15,115;TRUP,1.0,11,75;TSLA,1410.9,26,43;TTAN,6.5,21,93;TTC,9.1,8,96;TTMI,12.9,37,94;TVTX,5.6,48,115;TW,23.6,9,57;TWFG,1.3,45,76;TWIN,0.4,18,66;TWLO,45.1,22,91;TWST,12.2,23,127;TXN,254.8,23,91;TXNM,6.4,9,83;TXRH,10.2,11,95;TYL,13.4,8,101;U,18.3,24,70;UAL,35.8,16,90;UBER,139.5,12,84;UBSI,6.2,6,77;UCB,4.0,24,88;UCTT,3.6,24,104;UE,2.6,8,99;UFCS,1.4,14,71;UFPT,2.3,15,125;UHS,10.3,8,90;ULS,13.3,5,44;ULTA,23.3,9,103;UMAC,1.2,687,62;UMBF,9.7,12,93;UMH,1.3,8,76;UNP,160.3,12,91;UPS,79.5,8,64;UPST,2.3,42,65;URBN,6.6,10,74;URGN,2.0,199,87;URI,62.1,12,93;USAC,3.6,37,38;USB,88.6,10,83;USCB,0.4,14,76;USLM,3.2,8,33;USPH,1.3,8,110;UTI,1.1,7,114;UTL,0.9,14,85;UVE,1.2,7,80;UVSP,1.1,8,84;V,661.9,14,83;VAC,3.5,10,84;VCEL,2.0,22,112;VCTR,6.8,24,81;VCYT,3.7,15,113;VECO,3.1,16,114;VEEV,46.3,18,91;VEL,0.6,23,48;VIA,2.5,27,56;VIAV,10.3,53,98;VICI,25.0,6,97;VICR,14.5,49,50;VIRT,8.4,29,95;VLO,113.0,52,87;VLTO,22.9,8,99;VMI,8.9,6,96;VNO,6.9,5,93;VNOM,14.4,115,95;VOYG,1.8,15,78;VPG,1.0,12,77;VRDN,2.3,279,107;VRNS,5.5,18,105;VRSN,25.6,6,85;VRT,92.7,24,84;VRTX,132.2,12,97;VSEC,5.2,65,106;VSH,5.0,17,101;VSXY,7.0,10,97;VTOL,1.2,9,92;VTR,43.5,22,104;VTS,0.7,9,60;VVV,3.8,24,119;VVX,2.2,17,106;W,13.8,8,90;WAB,48.5,17,95;WAFD,2.2,6,86;WAL,8.1,14,92;WASH,0.7,10,75;WAT,42.8,113,102;WAY,5.0,18,88;WBI,3.4,128,105;WCC,17.5,13,98;WDAY,46.9,13,91;WDC,163.4,44,91;WDFC,2.7,24,88;WELL,164.5,39,100;WERN,2.3,24,115;WES,18.2,30,44;WEX,5.8,14,106;WFC,239.6,10,78;WGS,2.2,11,84;WHD,5.0,64,111;WHK,0.7,74,35;WINA,1.1,8,86;WING,2.9,6,120;WK,3.7,19,87;WKC,1.8,50,120;WLDN,1.1,33,82;WLK,7.8,11,32;WMB,82.8,8,91;WMG,14.6,10,31;WMS,9.6,21,95;WMT,823.2,6,44;WOR,2.9,13,53;WPC,14.6,18,80;WRBY,3.4,10,97;WS,1.8,12,81;WSBF,0.4,5,49;WSFS,3.8,9,95;WSM,26.8,7,98;WST,25.9,14,102;WT,3.5,57,115;WTBA,0.5,18,51;WTFC,9.5,10,97;WTS,11.8,19,82;WTTR,2.7,9,96;WWD,19.5,21,92;WWW,1.6,7,100;WYFI,0.7,56,24;WYNN,7.9,7,81;XMTR,5.9,41,99;XNCR,1.9,17,88;XOM,667.4,44,67;XPEL,1.2,15,80;XPO,20.7,13,95;XYZ,44.7,9,74;YETI,3.0,9,119;YORW,0.5,22,57;YOU,5.7,27,97;YSWY,1.3,39,110;YUM,37.2,12,91;Z,6.1,18,97;ZBRA,17.8,20,105;ZETA,8.2,44,76;ZG,6.3,18,97;ZION,9.0,35,84;ZS,33.0,25,52;ZWS,7.7,10,91";            // 基本面快照（stockanalysis.com，2026-10-01）：代碼,市值(十億),營收季成長%,機構持股%
+const FUND = {}; FUNDRAW.split(";").forEach(x=>{const [t,m,g,i]=x.split(",");FUND[t]={cap:+m,sales:+g,inst:+i};});
+const FUND_DATE = "2026-10-01";
+const TICKERS = Object.keys(FUND);
+const SCREEN_WIN = 50;   // 近 50 個交易日內曾符合技術條件
+let POOLINFO = {fund:TICKERS.length, tech:0, skipped:[]};
+const REPORT = {"meta":{"period":"2016-10 ~ 2026-09（10 年日 K，還原權值）","universe":"344 檔（原儀表板股票池，含 ETF）","exit":"隔日開盤進場；停利 +10%／停損 -12%／最多持有 60 個交易日（同一時間每檔只持有一筆）","runs":100,"tested":"2026-10-01"},"rows":[["v4A",1067,60.9,58.3,97,1.45,1,62.1,60,60.1,57.2,"7/10",7,36,20,50,55.8],["v4B",3531,61,56.4,100,1.5,0.57,60.2,57.4,61.5,55.8,"9/10",7,36,20,66,55.2],["div5",6609,60.9,55.5,100,1.53,0.36,61.3,54.6,60.6,56,"10/10",6,36,20,74,57],["tt7",12873,60.1,67.5,0,1.32,2.92,61.1,68.3,59.3,66.7,"0/10",6,36,18,58,57.1],["rsi30",5493,61.2,41,100,1.47,-2.83,57,36.7,64.8,44.7,"10/10",9,36,28,68,56.1],["wt60",3852,62.9,38.6,100,1.85,-3.38,59.3,32.1,66.1,44.4,"10/10",9,36,28,81,57.2],["cci150",12004,61.3,51.4,100,1.65,-0.55,60.8,50.7,61.6,51.9,"10/10",6,36,24,71,55.3],["td9",6410,61.8,50.2,100,1.76,-0.76,62.1,50,61.7,50.4,"10/10",7,36,25,78,58.5],["nl30",11714,61,49.2,100,1.57,-1.01,60.5,48.1,61.4,50.1,"10/10",6,36,25,70,56.5],["pb4",7905,60.6,63.7,0,1.47,2.11,62.4,65.3,59.1,62.3,"0/10",6,36,20,61,56.3],["mvPre",489,62.2,63,31,1.78,2.03,62.2,64.6,62.2,61.9,"4/10",6,33,17,76,57.2],["mvBrk",138,60.1,66.8,3,0.94,2.88,57.4,65.4,61.9,67.7,"3/8",3,14,10,49,48],["mtrA",9607,58.2,69.7,0,0.97,3.42,60.8,70.7,56,68.9,"0/10",5,36,19,33,54.7],["mtrB",4195,58.8,63.2,0,1.19,2.02,59.6,64.3,58.2,62.1,"0/10",5,36,17,35,53.6],["gc2",1039,63.3,53.2,100,2.02,-0.19,66.8,53.5,61.8,53,"9/9",7,34,21,80,55.6],["rsiDiv",1982,61.2,52.9,100,1.52,-0.2,63,51.5,60,53.9,"9/10",8,36,23,62,54.6],["rsiHid",3711,60,66.9,0,1.36,2.85,62.2,68.2,57.9,65.7,"0/10",7,36,18,51,56.5],["fib",4597,60,63.5,0,1.32,2.11,59.9,64.2,60.1,62.8,"2/10",5,36,21,49,55.7],["sta",11835,60.2,65.6,0,1.37,2.53,61.3,66.7,59.2,64.8,"0/10",8,36,20,52,56.8],["scrMA",12825,61.4,60.8,98,1.62,1.52,63.2,62.1,60,59.8,"8/10",8,36,19,69,57.8],["scrMACD",14658,60.6,59.6,100,1.44,1.24,62.3,60.5,59.2,58.9,"6/10",7,36,19,70,57.6],["scrVol",9541,60.3,63.1,0,1.39,2.01,59.5,63,60.9,63.2,"1/10",6,36,19,62,56.5],["scrKDJ",3984,60.4,45.4,100,1.45,-1.84,62.5,43,59.1,46.8,"10/10",6,36,22,61,56.9],["scrNH60",8743,58.7,72.4,0,1.05,4,59.4,72.8,58.2,72,"0/10",6,36,15,38,54.9],["scrMA60",9720,60.8,61.5,5,1.47,1.65,61.7,62.4,60.1,60.8,"4/10",7,36,20,60,56.2],["taGX",2101,61.6,69.2,0,1.7,3.4,64.6,71.5,59.4,67.5,"1/10",6,36,19,71,57],["taBB",11032,62.1,50.9,100,1.76,-0.66,61.2,49.9,62.8,51.8,"10/10",7,36,24,79,57.5],["taSTO",14125,61.4,53,100,1.69,-0.19,62,52.8,61.1,53.3,"10/10",6,36,22,76,57.4],["taADX",5441,60,71.6,0,1.31,3.8,61.7,73,58.6,70.5,"0/10",7,36,21,55,56.1],["taAlign",7837,60.7,67.8,0,1.43,3.01,62,68.6,59.5,67,"0/10",6,36,18,60,56.8],["mtf",5360,59.3,64.7,0,1.09,2.34,61.5,66.1,57.2,63.3,"1/10",5,36,18,36,55.4],["tgPB",705,57.3,68.7,0,0.78,3.23,60.1,71.2,54.6,66.3,"0/10",4,35,17,28,51.8],["tgBox",3304,58.1,69.5,0,0.94,3.42,58.2,69.1,58,69.9,"0/10",5,36,18,29,53.6],["tgPit",5019,60.7,52.6,100,1.5,-0.28,61.3,51.7,60.3,53.3,"10/10",7,36,22,64,57.3],["ema1020",9826,60.7,62,0,1.51,1.77,62.1,63.3,59.6,61,"3/10",7,36,20,54,55.1],["gap",537,60.3,64.8,1,1.43,2.32,59.4,65.5,60.9,64.3,"4/9",4,32,22,52,54.8]],"years":{"wt60":[["2017",36,80.6,52.2,4.51],["2018",407,61.9,35.4,1.95],["2019",183,78.1,47.1,4.91],["2020",935,50.4,23.4,-0.9],["2021",256,71.1,45.8,3.52],["2022",611,63,38.1,1.85],["2023",491,65.6,46.4,2.25],["2024",278,65.5,46.2,2.48],["2025",457,68.1,50.6,3.13],["2026",198,73.7,44.8,4.37]],"gc2":[["2017",2,50,87.5,-1],["2018",97,55.7,43.5,0.45],["2019",71,76.1,64.4,4.82],["2020",73,71.2,57.5,3.88],["2021",70,68.6,52.8,3.27],["2022",297,52.5,45.2,-0.49],["2023",135,73.3,61,4.27],["2024",93,65.6,56.7,2.67],["2025",123,67.5,59.9,2.96],["2026",78,64.1,52,2.01]],"v4A":[["2017",11,90.9,66.4,7.37],["2018",103,49.5,45,-1.16],["2019",102,61.8,62.4,1.34],["2020",126,70.6,64.7,3.67],["2021",96,61.5,65.2,1.82],["2022",203,51.7,48.7,-0.4],["2023",146,55.5,59.3,0.37],["2024",90,63.3,57.1,1.96],["2025",116,69.8,63.7,3.14],["2026",74,73,65,4.01]]}};          // 單一指標回測（上一輪）
+const COMBO = [["A","DE_CL_GAP|fix",2835,60.2,62.2,1,1.38,1.85,10,12,58.9,61.4,"1/10",56,"2022後58.9%"],["A","DE_CL_GAP|snr",2987,62.7,63.6,12,0.14,0.21,2.6,4.1,62.5,64.1,"4/10",98,"贏隨機12/100"],["A","DE_BOCC_GAP|fix",326,59.8,62.4,12,1.33,1.88,10,12,55.6,61,"4/10",47,"勝率59.8%"],["A","DE_BOCC_GAP|snr",307,67.8,70.2,14,0.23,0.45,2.8,5.2,70.1,70.7,"5/10",98,"贏隨機14/100"],["A","DE_BOCC_BO|fix",941,58.4,58.6,45,1.02,1.05,10,12,58.6,59.1,"4/10",33,"勝率58.4%"],["A","DE_BOCC_BO|snr",926,69.2,66.3,100,0.3,0.13,2.4,4.6,69.4,67,"8/10",100,"PASS"],["A","DE_BO_GAP|fix",2043,59.6,64.1,0,1.23,2.23,10,12,57,63.7,"2/10",45,"勝率59.6%"],["A","DE_BO_GAP|snr",2137,63.1,64.7,4,0.12,0.24,2.7,4.2,63.3,65.5,"1/10",99,"贏隨機4/100"],["A","DE_GAP_BO|fix",2694,60.1,62.5,0,1.38,1.87,10,12,59.4,62.4,"3/10",56,"2022後59.4%"],["A","DE_GAP_BO|snr",2950,64.7,64.8,49,0.21,0.19,2.5,4,64.7,64.9,"4/10",100,"贏隨機49/100"],["A","DE_HNS|fix",2437,59.8,63.2,0,1.19,2,10,12,59.8,62.3,"0/10",55,"勝率59.8%"],["A","DE_HNS|snr",2622,72.4,73.3,10,0.43,0.61,3.5,6.1,72.5,74.3,"3/10",100,"贏隨機10/100"],["A","DE_any|fix",7756,60,62.4,0,1.33,1.85,10,12,58.9,62,"1/10",48,"2022後58.9%"],["A","DE_any|snr",10462,66,66.4,17,0.21,0.27,2.8,4.6,65.7,66.6,"5/10",100,"贏隨機17/100"],["A","SU_CL|fix",14700,60.2,60.9,2,1.35,1.52,10,12,57.9,60.1,"4/10",55,"2022後57.9%"],["A","SU_CL|snr",25605,63.6,63.5,63,0.17,0.22,2.8,4.2,63.3,63.7,"5/10",100,"贏隨機63/100"],["A","SU_GAP|fix",10307,60.3,62.8,0,1.38,1.94,10,12,59.2,61.9,"1/10",64,"2022後59.2%"],["A","SU_GAP|snr",14864,62.4,63.8,0,0.15,0.37,3.1,4.3,63.1,64.4,"2/10",100,"贏隨機0/100"],["A","SU_BO|fix",12382,60.4,62.2,0,1.42,1.8,10,12,59.8,62,"2/10",60,"2022後59.8%"],["A","SU_BO|snr",20012,63.2,64,0,0.14,0.27,2.9,4.3,63.1,64.5,"3/10",100,"贏隨機0/100"],["A","SU_BOCC|fix",6288,60.4,60.7,33,1.5,1.47,10,12,59.9,60.2,"6/10",66,"2022後59.9%"],["A","SU_BOCC|snr",7731,64.4,63.7,89,0.14,0.16,2.7,4.3,63.4,63.6,"7/10",100,"贏隨機89/100"],["A","SU_HNS|fix",691,61.1,63.9,3,1.39,2.08,10,12,63.1,63.6,"4/10",64,"贏隨機3/100"],["A","SU_HNS|snr",686,61.1,62.4,25,0.16,0.3,3,4,63.4,62.4,"4/10",61,"贏隨機25/100"],["A","SU_any|fix",19848,60.3,61.3,0,1.36,1.59,10,12,58.6,60.8,"3/10",63,"2022後58.6%"],["A","SU_any|snr",46171,63.5,63.7,16,0.14,0.23,2.8,4.2,63.2,64,"3/10",100,"贏隨機16/100"],["A","TL111|fix",7740,61.1,64.2,0,1.61,2.27,10,12,59.1,62.5,"0/10",69,"2022後59.1%"],["A","TL111|snr",9802,52.2,53.2,1,0.1,0.2,2.8,2.7,52.2,52.7,"3/10",0,"勝率52.2%"],["A","TLbr|fix",6492,61.5,58.1,100,1.7,0.92,10,12,60,56.8,"10/10",68,"重抽68/100"],["A","TLbr|snr",7363,54,52.3,100,0.13,0.02,2.8,2.9,52.6,52.1,"7/10",0,"勝率54%"],["A","TL_any|fix",10881,61.5,61.6,43,1.7,1.69,10,12,59.7,60.1,"4/10",83,"2022後59.7%"],["A","TL_any|snr",16076,53,52.8,69,0.11,0.13,2.8,2.8,52.4,52.4,"4/10",0,"勝率53%"],["A","DE_any+EQ|fix",5766,60.1,62.5,0,1.36,1.88,10,12,58.7,62.5,"2/10",48,"2022後58.7%"],["A","DE_any+EQ|snr",7382,64.1,64.4,24,0.14,0.15,2.4,4,63.8,64.8,"5/10",100,"贏隨機24/100"],["A","SU_any+EQ|fix",17472,60.3,61.2,0,1.39,1.58,10,12,58.7,60.7,"3/10",63,"2022後58.7%"],["A","SU_any+EQ|snr",41086,64.1,64,58,0.14,0.19,2.6,4.2,63.9,64.3,"5/10",100,"贏隨機58/100"],["A","DE_any+OS|fix",3462,61.4,57,100,1.61,0.7,10,12,60.6,57.5,"10/10",68,"重抽68/100"],["A","DE_any+OS|snr",3753,68.5,65.6,100,0.26,0.03,2.6,4.8,67.2,66.1,"9/10",100,"PASS"],["A","SU_any+OS|fix",10693,60.7,54.5,100,1.48,0.13,10,12,59.5,54.8,"10/10",65,"2022後59.5%"],["A","SU_any+OS|snr",16513,66.6,62.7,100,0.17,-0.1,2.5,4.5,65.2,62.8,"10/10",100,"PASS"],["A","TL_any+OS|fix",3023,62.5,53.6,100,1.88,-0.01,10,12,62,53.6,"9/10",88,"PASS"],["A","TL_any+OS|snr",3031,55.8,51.3,100,0.12,-0.12,2.8,3.1,54.6,51.2,"10/10",0,"勝率55.8%"],["A","SU_any+TL|fix",4977,60.2,63.2,0,1.43,2.03,10,12,59.1,61.6,"0/10",62,"2022後59.1%"],["A","SU_any+TL|snr",5912,61.8,64,0,0.09,0.34,2.8,4,61.9,64.2,"1/10",97,"贏隨機0/100"],["A","DE_any+TL|fix",1065,58.2,61.7,0,0.88,1.68,10,12,55.9,59.3,"1/10",28,"勝率58.2%"],["A","DE_any+TL|snr",1052,65.2,67.8,4,0.02,0.22,2.6,4.6,64.6,67.1,"2/10",99,"贏隨機4/100"],["A","SU_any+EQ+OS|fix",9450,60.8,54.9,100,1.51,0.23,10,12,59.8,54.8,"10/10",69,"2022後59.8%"],["A","SU_any+EQ+OS|snr",14663,66.5,62.7,100,0.16,-0.09,2.4,4.3,65.4,62.8,"10/10",100,"PASS"],["A","DE_any+EQ+OS|fix",2360,61.4,56.5,100,1.61,0.6,10,12,60.2,57.1,"9/10",70,"重抽70/100"],["A","DE_any+EQ+OS|snr",2533,66.3,63.4,100,0.16,-0.05,2.3,4.2,64.4,64.1,"7/10",100,"年份7/10"],["A","SU_any+EQ+TL|fix",4441,60.3,63,0,1.43,2,10,12,59.4,61.5,"1/10",58,"2022後59.4%"],["A","SU_any+EQ+TL|snr",5272,62.3,64.6,0,0.07,0.29,2.6,4,62.1,64.7,"2/10",100,"贏隨機0/100"],["A","SU_any+OS+TL|fix",988,62.4,57.6,100,1.99,0.8,10,12,62.2,57,"9/10",86,"PASS"],["A","SU_any+OS+TL|snr",962,65.9,64.8,79,0.06,-0.04,2.4,4.6,62.9,64.8,"6/10",100,"贏隨機79/100"],["A","SU_any+EQ+noObs|fix",16641,60.7,61.1,9,1.45,1.55,10,12,59.1,60.3,"4/10",63,"2022後59.1%"],["A","SU_any+EQ+noObs|snr",35363,63.4,63.4,48,0.13,0.19,2.7,4.2,63.3,63.7,"5/10",100,"贏隨機48/100"],["A","DE_any+EQ+noObs|fix",5000,60,61.9,0,1.34,1.76,10,12,58.6,61.6,"2/10",59,"2022後58.6%"],["A","DE_any+EQ+noObs|snr",6040,62.9,63.7,6,0.12,0.15,2.5,4,62.9,64.3,"3/10",98,"贏隨機6/100"],["A","SU_any+EQ+OS+noObs|fix",8978,61.3,54.9,100,1.59,0.22,10,12,60,54.6,"10/10",68,"重抽68/100"],["A","SU_any+EQ+OS+noObs|snr",13308,66.1,62.4,100,0.16,-0.09,2.5,4.4,65.1,62.7,"10/10",100,"PASS"],["A","SU_any+OS+noObs|fix",10208,61,54.4,100,1.54,0.1,10,12,59.5,54.4,"10/10",76,"2022後59.5%"],["A","SU_any+OS+noObs|snr",15093,66.3,62.4,100,0.17,-0.1,2.6,4.5,64.9,62.6,"10/10",100,"PASS"],["A","TL_any+OS+noObs|fix",2809,63,53.9,100,1.96,0.03,10,12,62.1,54.1,"9/10",95,"PASS"],["A","TL_any+OS+noObs|snr",2762,55.2,50.8,100,0.11,-0.13,2.8,3.1,54.4,50.7,"9/10",0,"勝率55.2%"],["B","DE_CL_GAP|fix",734,58.6,62,0,3.28,4.62,20,20,61,65.4,"1/10",37,"勝率58.6%"],["B","DE_CL_GAP|snr",774,66.3,69.8,0,0.01,0.51,4.7,8.1,63.1,70.2,"5/10",100,"贏隨機0/100"],["B","DE_BOCC_GAP|fix",89,68.5,67,58,6.81,6.6,20,20,75,71,"2/4",95,"樣本89筆"],["B","DE_BOCC_GAP|snr",86,70.9,75.3,9,0.35,1.14,4.4,8.8,69.8,78,"2/4",99,"樣本86筆"],["B","DE_BOCC_BO|fix",281,69,64,100,7.68,5.42,20,20,70,67.9,"7/9",99,"年份7/9"],["B","DE_BOCC_BO|snr",282,82.3,73.4,100,1.48,0.32,3.6,8.8,83.3,76.6,"8/9",100,"PASS"],["B","DE_BO_GAP|fix",618,62.3,69.6,0,4.53,7.71,20,20,65.4,72.7,"1/9",82,"贏隨機0/100"],["B","DE_BO_GAP|snr",668,65.6,72.9,0,0.14,1.28,4.7,7.8,68,75.1,"0/9",98,"贏隨機0/100"],["B","DE_GAP_BO|fix",867,64.7,66.9,2,5.85,6.61,20,20,65,68.9,"3/9",93,"贏隨機2/100"],["B","DE_GAP_BO|snr",990,68.1,72.5,0,0.2,0.76,3.9,7.6,68.2,72,"2/9",100,"贏隨機0/100"],["B","DE_HNS|fix",255,61.2,65,1,4.2,5.95,20,20,64.3,67.9,"3/9",58,"贏隨機1/100"],["B","DE_HNS|snr",261,73.9,78.6,0,0.74,1.8,7.2,11.7,75.9,79.8,"3/9",100,"贏隨機0/100"],["B","DE_any|fix",2039,62.9,66,0,4.95,6.24,20,20,64.5,69.1,"4/10",85,"贏隨機0/100"],["B","DE_any|snr",2728,68.5,72.6,0,0.3,0.88,4.6,8.2,68.8,73.6,"1/10",100,"贏隨機0/100"],["B","SU_CL|fix",3939,62.1,61.4,89,4.7,4.5,20,20,62.8,63.8,"5/10",81,"贏隨機89/100"],["B","SU_CL|snr",6626,66.2,67.7,0,0.15,0.57,5,8.1,67.1,68.5,"3/10",100,"贏隨機0/100"],["B","SU_GAP|fix",2778,63.6,65.9,0,5.2,6.26,20,20,64.4,67.9,"1/10",91,"贏隨機0/100"],["B","SU_GAP|snr",4077,62.6,67.8,0,0.41,1.41,6.2,7.9,64.6,69,"0/10",97,"贏隨機0/100"],["B","SU_BO|fix",3579,62.9,65.7,0,5.03,6.22,20,20,62.8,68.3,"2/10",79,"贏隨機0/100"],["B","SU_BO|snr",6008,65.8,68.3,0,0.38,0.98,5.3,7.8,67.1,69.6,"2/10",100,"贏隨機0/100"],["B","SU_BOCC|fix",1738,61.4,59.8,99,4.3,3.79,20,20,63,64.1,"5/10",67,"年份5/10"],["B","SU_BOCC|snr",2265,67,66.1,88,0.3,0.31,4.7,7.8,68.6,67.6,"5/10",100,"贏隨機88/100"],["B","SU_HNS|fix",90,61.1,63.1,19,4.52,5.27,20,20,58.3,63.7,"3/6",66,"樣本90筆"],["B","SU_HNS|snr",93,60.2,67.4,1,0.64,1.61,5.8,7.2,61.5,70.2,"1/6",58,"樣本93筆"],["B","SU_any|fix",5642,62.3,63.8,1,4.94,5.48,20,20,62,65.6,"3/10",77,"贏隨機1/100"],["B","SU_any|snr",12853,66,68.6,0,0.3,0.9,5.2,8,67,69.3,"0/10",100,"贏隨機0/100"],["B","TL111|fix",1596,63.7,63.7,47,5.31,5.31,20,20,66.7,66.5,"5/10",94,"贏隨機47/100"],["B","TL111|snr",2067,50.5,51.3,12,0.21,0.35,5.4,4.8,48.8,50.6,"4/10",0,"勝率50.5%"],["B","TLbr|fix",1368,61.3,62.7,6,4.32,4.8,20,20,63.2,63.7,"2/9",75,"贏隨機6/100"],["B","TLbr|snr",1601,56.7,55.1,94,0.29,0.2,4.7,5.2,56.6,54.3,"8/9",3,"勝率56.7%"],["B","TL_any|fix",2405,62.8,63.5,14,4.94,5.21,20,20,65.1,65.2,"4/10",81,"贏隨機14/100"],["B","TL_any|snr",3513,53,53,48,0.25,0.3,5.1,4.9,52.5,52.6,"4/10",0,"勝率53%"],["B","DE_any+EQ|fix",1201,63.7,67.3,0,5.42,6.75,20,20,64.9,70,"2/10",92,"贏隨機0/100"],["B","DE_any+EQ|snr",1574,69.6,73.2,0,0.36,0.75,3.8,7.5,69.7,73.4,"0/10",100,"贏隨機0/100"],["B","SU_any+EQ|fix",3613,62.7,64.5,0,4.94,5.72,20,20,62.5,66.4,"3/10",83,"贏隨機0/100"],["B","SU_any+EQ|snr",7803,67.8,69.8,0,0.32,0.71,4.4,7.6,68.7,70.8,"3/10",100,"贏隨機0/100"],["B","DE_any+OS|fix",884,67.5,66,91,6.81,6.22,20,20,68.5,69.4,"7/9",99,"贏隨機91/100"],["B","DE_any+OS|snr",976,76.7,74.8,95,0.86,0.63,3.8,8.8,77.2,75.9,"6/9",100,"年份6/9"],["B","SU_any+OS|fix",2663,64.3,58.6,100,5.48,3.29,20,20,63.5,61.3,"10/10",93,"PASS"],["B","SU_any+OS|snr",4091,72.9,70.8,100,0.32,0.19,3.8,8.6,72.8,71.6,"7/10",100,"年份7/10"],["B","TL_any+OS|fix",605,61.7,61.4,61,4.43,4.28,20,20,63.2,63,"5/9",72,"贏隨機61/100"],["B","TL_any+OS|snr",643,56.9,55.8,71,0.1,0.01,4.7,5.6,56.9,55.6,"5/9",19,"勝率56.9%"],["B","SU_any+TL|fix",1220,62.1,64.6,0,4.57,5.6,20,20,64.7,67.3,"1/9",83,"贏隨機0/100"],["B","SU_any+TL|snr",1527,63.9,67.8,0,0.13,0.87,5.3,7.7,66.7,69.3,"2/9",96,"贏隨機0/100"],["B","DE_any+TL|fix",273,57.1,63,0,2.54,4.9,20,20,61.6,66.6,"0/9",21,"勝率57.1%"],["B","DE_any+TL|snr",289,69.9,73.6,3,0.22,0.9,4.8,8.4,74.2,75.5,"4/9",100,"贏隨機3/100"],["B","SU_any+EQ+OS|fix",1688,65.5,61.8,100,5.83,4.44,20,20,65.7,64.8,"8/10",95,"PASS"],["B","SU_any+EQ+OS|snr",2445,73.8,71.6,100,0.36,0.2,3.5,8.3,74,72.2,"8/10",100,"PASS"],["B","DE_any+EQ+OS|fix",488,70.9,68.4,98,8.07,7.07,20,20,71.5,71.7,"7/9",99,"年份7/9"],["B","DE_any+EQ+OS|snr",549,76.7,74.7,90,0.83,0.57,3.4,8,78.7,76.4,"6/9",100,"贏隨機90/100"],["B","SU_any+EQ+TL|fix",765,62.6,64.9,2,4.6,5.58,20,20,66.4,69.6,"2/9",79,"贏隨機2/100"],["B","SU_any+EQ+TL|snr",953,65.6,70,0,0.16,0.87,4.5,7.3,66.9,70.9,"0/9",100,"贏隨機0/100"],["B","SU_any+OS+TL|fix",246,61.8,61.6,53,4.15,4.32,20,20,63.5,63,"6/9",65,"贏隨機53/100"],["B","SU_any+OS+TL|snr",257,69.6,73.4,8,-0.26,0.49,3.5,8.5,71.8,73.8,"2/8",100,"贏隨機8/100"],["B","SU_any+EQ+noObs|fix",3525,62.7,64.1,0,4.96,5.54,20,20,62.5,65.9,"4/10",83,"贏隨機0/100"],["B","SU_any+EQ+noObs|snr",7242,67.1,68.9,0,0.33,0.7,4.5,7.6,68,69.9,"3/10",100,"贏隨機0/100"],["B","DE_any+EQ+noObs|fix",1116,63.2,66.5,0,5.19,6.45,20,20,64,68.7,"2/9",88,"贏隨機0/100"],["B","DE_any+EQ+noObs|snr",1433,68.9,72.3,0,0.34,0.7,3.9,7.5,69.2,72.4,"0/9",100,"贏隨機0/100"],["B","SU_any+EQ+OS+noObs|fix",1610,65,61,100,5.67,4.16,20,20,65.1,63.8,"8/10",95,"PASS"],["B","SU_any+EQ+OS+noObs|snr",2273,73.6,70.9,100,0.38,0.18,3.5,8.3,73.8,71.6,"9/10",100,"PASS"],["B","SU_any+OS+noObs|fix",2581,64,58.1,100,5.35,3.1,20,20,63.3,60.9,"9/10",92,"PASS"],["B","SU_any+OS+noObs|snr",3852,72.4,70,100,0.3,0.14,3.9,8.7,72.4,70.8,"8/10",100,"PASS"],["B","TL_any+OS+noObs|fix",571,61.1,60.8,57,4.27,4.08,20,20,62.2,62.2,"5/9",59,"贏隨機57/100"],["B","TL_any+OS+noObs|snr",601,54.9,54.3,63,-0.03,-0.05,4.8,5.5,54.7,53.8,"3/9",3,"勝率54.9%"]];            // SNR × 指標 組合回測
+const AVOID = {"A":[["M1","大盤 SPY 在 200 日線下",755,213,73.2,542,64.4,2.69,62.2,61.1,61.6,1.69],["M2","大盤 200 日線下彎",520,144,84.7,376,64.1,3.39,61.3,61.6,61.5,1.64],["M3","大盤 50 日線在 200 日線下",558,153,84.3,405,62.7,3.16,61.2,62,61.6,1.66],["M4","大盤 20 日波動 >30%",231,104,80.8,127,80.3,5.5,62.6,60.7,61.4,1.65],["M5","大盤距一年高點跌超過 15%",360,86,82.6,274,69.3,3.97,62.8,60.7,61.6,1.67],["M6","大盤 20 日內跌超過 8%",178,84,75,94,61.7,2.78,63.4,62.2,62.7,1.91],["S1","個股低於自己長均線 25% 以上",293,98,69.4,195,58.5,1.71,63.8,62.6,63.1,1.99],["S2","個股長均線下彎",1256,451,64.5,805,61.9,1.88,64.1,62.4,63.2,2.03],["S3","個股距一年低點 5% 以內",248,84,63.1,164,62.8,1.85,64.4,62.1,63,1.97],["S4","觸發當天爆量 >2.5 倍",71,25,64,46,67.4,2.67,64.3,62,62.9,1.94],["Q1","超賣只有 1 個指標",1227,515,61.4,712,62.2,1.58,66.7,62.1,63.9,2.26],["Q5","超賣只有「創新低」",312,124,60.5,188,63.3,1.48,64.8,62,63.1,2.02],["T1","趨勢線是突破回踩 11b2",2399,967,65.4,1432,61.9,2.03,58.1,63.8,61.5,1.55],["T2","趨勢線是延續 111",410,167,58.1,243,63.8,1.55,65.4,61.9,63.3,2.03]],"B":[["M1","大盤 SPY 在 200 日線下",975,393,81.9,582,63.6,8.05,55.1,63.1,59.8,3.71],["M2","大盤 200 日線下彎",760,317,87.1,443,62.3,8.61,55.6,63.6,60.4,3.99],["M3","大盤 50 日線在 200 日線下",756,236,85.2,520,60.2,6.79,59.3,64.8,62.3,4.76],["M4","大盤 20 日波動 >30%",490,238,85.7,252,69.8,10.51,59.1,61.9,60.8,4.14],["M5","大盤距一年高點跌超過 15%",460,209,90.4,251,64.9,10.14,58.8,62.9,61.3,4.31],["M6","大盤 20 日內跌超過 8%",204,159,87.4,45,57.8,11.94,61.1,63.4,62.6,4.79],["S1","個股低於自己長均線 25% 以上",299,107,70.1,192,47.9,2.34,64.5,65.5,65.1,5.75],["S2","個股長均線下彎",1473,580,66,893,62.3,5.34,63.9,64.7,64.3,5.37],["Q1","超賣只有 1 個指標",761,297,58.9,464,64,4.56,67.5,62.9,64.8,5.69],["Q5","超賣只有「創新低」",112,37,59.5,75,49.3,0.68,65.3,64,64.5,5.56],["R1","守住的是經典水平",1434,641,63.7,793,63.6,5.17,67.3,62.9,64.5,5.59],["R2","守住的是缺口",539,228,69.3,311,59.8,5.15,63.9,64.1,64.1,5.4],["R3","守住的是 BO",961,363,71.1,598,64.2,6.58,61.9,62.6,62.3,4.62],["R4","守住的是 BOCC",435,173,72.3,262,62.2,6.35,63.7,63.5,63.6,5.15]]};            // 不做規則回測
+const API = (t, kind, range="5Y") => `https://stockanalysis.com/api/symbol/${kind}/${t.toLowerCase()}/history?range=${range}&period=Daily`;
+const CACHE_KEY = "vcpDash.cache.v8";
+let DATA = [], META = {asof:"", scannedAt:"", failed:[]}, scanning = false, filter = "全部";
+
+/* ================= 採用的兩個組合（回測 6 道門檻全過） ================= */
+const EXITS = {"A":[[3,8,3151,77.6,70.9,0.55,-0.18,78.4,77.1],[3,10,3116,81.4,75.5,0.64,-0.1,82.7,80.6],[3,12,3085,84.3,78.6,0.75,-0.04,85.4,83.7],[3,15,3049,87,81.3,0.88,0,87.9,86.4],[3,20,3012,89.4,83.6,1.11,0.13,90.1,88.9],[4,8,3111,72.8,64.6,0.77,-0.21,73.2,72.6],[4,10,3067,77,69.5,0.88,-0.16,77.9,76.5],[4,12,3033,80.3,73.3,1.01,-0.04,80.8,79.9],[4,15,2988,82.9,76.5,1.14,0.05,83.6,82.5],[4,20,2945,85.5,79.3,1.39,0.23,86,85.1],[5,8,3077,68.8,59.6,0.99,-0.2,69.3,68.5],[5,10,3026,73.2,64.7,1.09,-0.16,74.1,72.6],[5,12,2987,76.9,68.5,1.27,-0.05,77.7,76.3],[5,15,2942,79.7,72.3,1.4,0.09,80.7,79],[5,20,2890,82.5,75,1.73,0.22,82.9,82.2],[6,8,3048,64.3,55.7,1.04,-0.17,64.7,64.1],[6,10,2989,68.8,60.5,1.14,-0.18,69.5,68.2],[6,12,2942,72.5,64.2,1.31,-0.11,73,72.1],[6,15,2890,75.8,68.3,1.52,0.11,76.6,75.3],[6,20,2835,78.7,71.6,1.84,0.32,78.8,78.6],[8,8,3013,58.4,48.8,1.33,-0.2,59.5,57.6],[8,10,2946,63.1,54.1,1.46,-0.15,64.5,62.2],[8,12,2895,67,58.3,1.66,0,68.1,66.3],[8,15,2835,70.4,62.4,1.91,0.15,71.2,70],[8,20,2769,73.5,65.8,2.28,0.38,73.7,73.4],[10,8,2962,54.1,44.4,1.58,-0.18,55.3,53.3],[10,10,2895,58.9,49.9,1.73,-0.08,60.3,58],[10,12,2844,63,54,1.98,0.02,64,62.3],[10,15,2776,66.6,58,2.28,0.25,67.1,66.4],[10,20,2707,69.9,61.8,2.68,0.55,69.7,70]],"B":[[6,25,3134,87.5,84.1,2.24,1.29,86.8,88],[6,20,3276,83.8,80.6,1.83,1.04,83.4,84.1],[8,25,2940,83.8,79.6,2.85,1.56,83.4,84.1],[10,25,2790,80.8,75.5,3.52,1.8,80.7,80.8],[8,20,3104,79.8,75.9,2.43,1.37,80,79.8],[6,15,3488,77.8,75.1,1.34,0.78,78,77.6],[12,25,2679,77.5,72.8,4,2.34,77.5,77.4],[10,20,2961,76.6,72,3.05,1.71,77,76.3],[15,25,2540,73.7,68.9,4.78,2.95,73.6,73.8],[8,15,3329,73.6,69.4,1.93,0.98,74.3,73.1],[12,20,2858,73,67.8,3.44,1.84,73.7,72.4],[10,15,3195,70,65.3,2.51,1.34,71.2,69.3],[20,25,2392,69.3,63.8,6.19,3.84,69.2,69.4],[15,20,2730,68.8,63.3,4.1,2.26,69.8,68],[12,15,3094,66.2,61,2.85,1.46,67.3,65.4],[20,20,2578,64,57.8,5.35,2.99,65.1,63.3],[15,15,2988,61.7,56.4,3.45,1.87,62.9,61],[20,15,2856,56.2,50.5,4.34,2.42,57.3,55.4]]};            // 出場設定網格回測
+const PICK = {
+  A:{key:"A|TL_any+OS+noObs|fix", title:"日線抄底", rule:"5 個交易日內出現超賣訊號 ＋ 今天收盤完成趨勢線第三次觸碰（C3）＋ 上方 3% 內沒有月線壓力",
+     exit:"隔日開盤買進；停利 +5%／停損 -15%／最多 60 個交易日（平均持有約 16 天）", tp:0.05, sl:0.15, mh:60, unit:"個交易日", be:75,
+     stat:{n:2942,wr:79.7,base:72.3,beat:100,er:1.40,baseEr:0.09,oos:79.0,oosBase:72.2,yEdge:"10/10",boot:100},
+     years:[["2017",33,90.9,84.8,3.08],["2018",284,73.6,66.2,0.69],["2019",229,86.5,72.2,2.72],["2020",311,81.4,71.5,1.4],["2021",317,81.1,74.9,1.77],["2022",412,73.5,68.8,0.04],["2023",407,77.6,71.8,1.22],["2024",295,79.3,75.1,1.44],["2025",407,80.3,70.5,1.45],["2026",247,87.9,73.2,2.74]]},
+  B:{key:"B|SU_any+OS+noObs|fix", title:"週線抄底（中長線）", rule:"週線：新鮮 SNR 支撐第一次觸碰收盤守住（設置）→ 下一週收漲確認（DC）＋ 5 週內出現超賣訊號 ＋ 上方 3% 內沒有季線壓力",
+     exit:"下週開盤買進；停利 +10%／停損 -20%／最多 52 週（平均持有約 9.5 週）", tp:0.10, sl:0.20, mh:52, unit:"週", be:66.7,
+     stat:{n:2961,wr:76.6,base:72.0,beat:100,er:3.05,baseEr:1.71,oos:76.3,oosBase:71.8,yEdge:"9/10",boot:100},
+     years:[["2017",25,68,73.4,1.97],["2018",266,67.3,67.2,0.51],["2019",290,82.4,75.1,4.72],["2020",351,83.8,66.6,5.15],["2021",245,72.2,66.7,1.79],["2022",539,66,65.7,-0.14],["2023",393,84.5,79.5,5.34],["2024",243,77,71.9,3.15],["2025",432,77.1,75.9,3.15],["2026",177,87,73,6.1]]}
+};
+
+/* ================= 指標與 SNR 引擎（與回測程式同一套算法） ================= */
+const F=Float64Array;
+const SMA=(a,n)=>{const o=new F(a.length).fill(NaN);let s=0;for(let i=0;i<a.length;i++){s+=a[i];if(i>=n)s-=a[i-n];if(i>=n-1)o[i]=s/n;}return o;};
+const EMA=(a,n)=>{const o=new F(a.length).fill(NaN),k=2/(n+1);let p=NaN;for(let i=0;i<a.length;i++){const x=a[i];if(isNaN(x))continue;p=isNaN(p)?x:x*k+p*(1-k);o[i]=p;}return o;};
+const RMA=(a,n)=>{const o=new F(a.length).fill(NaN);let p=NaN,s=0;for(let i=0;i<a.length;i++){if(isNaN(p)){s+=a[i];if(i===n-1)p=s/n;}else p=(p*(n-1)+a[i])/n;o[i]=p;}return o;};
+const HH=(a,n)=>{const o=new F(a.length).fill(NaN);for(let i=n-1;i<a.length;i++){let m=-Infinity;for(let j=i-n+1;j<=i;j++)if(a[j]>m)m=a[j];o[i]=m;}return o;};
+const LL=(a,n)=>{const o=new F(a.length).fill(NaN);for(let i=n-1;i<a.length;i++){let m=Infinity;for(let j=i-n+1;j<=i;j++)if(a[j]<m)m=a[j];o[i]=m;}return o;};
+function RSI(c,n){const g=new F(c.length),l=new F(c.length);for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];g[i]=d>0?d:0;l[i]=d<0?-d:0;}const ag=RMA(g,n),al=RMA(l,n);return ag.map((x,i)=>isNaN(x)?NaN:al[i]===0?100:100-100/(1+x/al[i]));}
+function CCI(h,l,c,n){const tp=c.map((x,i)=>(h[i]+l[i]+x)/3),m=SMA(tp,n),o=new F(c.length).fill(NaN);for(let i=n-1;i<c.length;i++){let md=0;for(let j=i-n+1;j<=i;j++)md+=Math.abs(tp[j]-m[i]);md/=n;o[i]=md===0?0:(tp[i]-m[i])/(0.015*md);}return o;}
+function ind(d){const {h,l,c,n}=d,X={};X.s5=SMA(c,5);X.s20=SMA(c,20);X.s50=SMA(c,50);X.s200=SMA(c,200);
+  const e12=EMA(c,12),e26=EMA(c,26);X.dif=e12.map((x,i)=>x-e26[i]);X.dea=EMA(X.dif,9);X.rsi=RSI(c,14);
+  const hh14=HH(h,14),ll14=LL(l,14),k0=c.map((x,i)=>isNaN(hh14[i])?NaN:hh14[i]===ll14[i]?50:(x-ll14[i])/(hh14[i]-ll14[i])*100);
+  X.stK=SMA(k0.map(x=>isNaN(x)?50:x),3);X.stD=SMA(X.stK.map(x=>isNaN(x)?50:x),3);X.cci20=CCI(h,l,c,20);
+  const ap=c.map((x,i)=>(h[i]+l[i]+x)/3),esa=EMA(ap,10),dd=EMA(ap.map((x,i)=>Math.abs(x-esa[i])),10);X.wt=EMA(ap.map((x,i)=>dd[i]===0?0:(x-esa[i])/(0.015*dd[i])),21);
+  const sd=new F(n).fill(NaN);for(let i=19;i<n;i++){let s=0;for(let j=i-19;j<=i;j++)s+=(c[j]-X.s20[i])**2;sd[i]=Math.sqrt(s/20);}X.bbl=X.s20.map((x,i)=>x-2*sd[i]);return X;}
+function tdCount(c){const o=new Int32Array(c.length);for(let i=4;i<c.length;i++)o[i]=c[i]<c[i-4]?o[i-1]+1:0;return o;}
+const OSN={wt:"WaveTrend 超賣",rsi:"RSI<30",cci:"CCI<-150",bb:"布林下軌收回",kd:"KD 低檔金叉",td:"TD 九轉",nl:"30 根新低",gc:"MACD 零軸下二次金叉"};
+function osFlags(b){ // 每根 K 觸發了哪些超賣指標
+  const X=ind(b),n=b.n,c=b.c,l=b.l,td=tdCount(c),out=new Array(n).fill(null);
+  for(let i=30;i<n;i++){const f=[];let m30=Infinity;for(let j=i-29;j<i;j++)if(l[j]<m30)m30=l[j];
+    if(X.wt[i]<-60)f.push("wt");if(X.rsi[i]<30)f.push("rsi");if(X.cci20[i]<-150)f.push("cci");if(c[i-1]<X.bbl[i-1]&&c[i]>X.bbl[i])f.push("bb");
+    if(X.stK[i]>X.stD[i]&&X.stK[i-1]<=X.stD[i-1]&&X.stK[i-1]<20)f.push("kd");if(td[i]===9)f.push("td");if(l[i]<m30)f.push("nl");
+    if(i>150&&X.dif[i]>X.dea[i]&&X.dif[i-1]<=X.dea[i-1]&&X.dif[i]<0&&c[i]>X.s5[i]){for(let j=i-8;j>=i-60;j--){if(X.dif[j]>=0)break;if(X.dif[j]>X.dea[j]&&X.dif[j-1]<=X.dea[j-1]){let mn1=Infinity,mn2=Infinity,pl1=Infinity,pl2=Infinity,mx=0;
+      for(let q=j-20;q<j;q++){mn1=Math.min(mn1,X.dif[q]);pl1=Math.min(pl1,l[q]);}for(let q=j;q<=i;q++){mn2=Math.min(mn2,X.dif[q]);pl2=Math.min(pl2,l[q]);}for(let q=j-60;q<j;q++)mx=Math.max(mx,c[q]);
+      if(X.dif[i]>X.dif[j]&&mn2>mn1&&c[j]<mx*0.85&&pl2<=pl1*1.05)f.push("gc");break;}}}
+    if(f.length)out[i]=f;}
+  return {flags:out,X};
+}
+const osWithin=(flags,i,w=5)=>{const s=new Set();for(let j=Math.max(0,i-w+1);j<=i;j++)if(flags[j])flags[j].forEach(x=>s.add(x));return [...s];};
+const SNR=(function(){
+  const F64=Float64Array;
+  function wkKey(t){const d=new Date(t+"T00:00:00Z");const dw=(d.getUTCDay()+6)%7;return new Date(d.getTime()-dw*864e5).toISOString().slice(0,10);}
+  const KEY={W:wkKey,M:t=>t.slice(0,7),Q:t=>t.slice(0,4)+"Q"+((((+t.slice(5,7))-1)/3|0)+1)};
+  function agg(d,f){if(f==="D")return d;const kf=KEY[f],T=[],O=[],H=[],L=[],C=[],V=[];let cur=null;
+    for(let i=0;i<d.n;i++){const k=kf(d.t[i]);if(k!==cur){cur=k;T.push(d.t[i]);O.push(d.o[i]);H.push(d.h[i]);L.push(d.l[i]);C.push(d.c[i]);V.push(d.v[i]);}
+      else{const j=T.length-1;T[j]=d.t[i];if(d.h[i]>H[j])H[j]=d.h[i];if(d.l[i]<L[j])L[j]=d.l[i];C[j]=d.c[i];V[j]+=d.v[i];}}
+    return {t:T,o:new F64(O),h:new F64(H),l:new F64(L),c:new F64(C),v:new F64(V),n:T.length};}
+  function buildLevels(b){
+    const n=b.n,{o,h,l,c}=b,body=new F64(n);for(let i=0;i<n;i++)body[i]=Math.abs(c[i]-o[i]);
+    const ab=new F64(n);{let s=0;for(let i=0;i<n;i++){s+=body[i];if(i>=20)s-=body[i-20];ab[i]=i>=19?s/20:NaN;}}
+    const S=[],R=[],ev={rej:{},rejT:new Array(n).fill(null),rejP:new F64(n).fill(NaN)};for(const k of ["CL","GAP","BO","BOCC","HNS"])ev.rej[k]=new Uint8Array(n);
+    const rAll=[];const pl=[];let pendingBO=[];
+    for(let i=1;i<n;i++){
+      const green=c[i]>o[i],red=c[i]<o[i],big=!isNaN(ab[i])&&body[i]>1.5*ab[i];
+      for(const s of S){if(s.broken||s.k>=i)continue;
+        if(l[i]<=s.hi){if(!s.touched){s.touched=true;if(c[i]>s.hi){ev.rej[s.type][i]=1;(ev.rejT[i]||(ev.rejT[i]=[])).push(s.type);ev.rejP[i]=s.hi;}}
+          if(c[i]<s.lo){s.broken=true;if(big&&red){R.push({type:"BO",lo:s.lo,hi:s.hi,k:i,touched:false,broken:false});rAll.push({p:(s.lo+s.hi)/2,t:b.t[i],k:i});}}}}
+      for(const r of R){if(r.broken||r.k>=i)continue;
+        if(c[i]>r.hi&&c[i-1]<=r.hi){r.broken=true;if(big&&green){const ns={type:"BO",lo:r.lo,hi:r.hi,k:i,touched:false,broken:false};S.push(ns);pendingBO.push([ns,i]);}}}
+      pendingBO=pendingBO.filter(([s,k])=>{if(i===k+1){if(green&&c[i]>s.hi&&!s.touched)S.push({type:"BOCC",lo:s.lo,hi:s.hi,k:i,touched:false,broken:false});return false;}return i<k+1;});
+      if(red&&c[i-1]>o[i-1]){R.push({type:"CL",lo:c[i-1],hi:c[i-1],k:i,touched:false,broken:false});rAll.push({p:c[i-1],t:b.t[i],k:i});}
+      if(green&&c[i-1]<o[i-1])S.push({type:"CL",lo:c[i-1],hi:c[i-1],k:i,touched:false,broken:false});
+      if(green&&c[i-1]>o[i-1]&&o[i]>c[i-1])S.push({type:"GAP",lo:c[i-1],hi:o[i],k:i,touched:false,broken:false});
+      if(red&&c[i-1]<o[i-1]&&o[i]<c[i-1]){R.push({type:"GAP",lo:o[i],hi:c[i-1],k:i,touched:false,broken:false});rAll.push({p:(c[i-1]+o[i])/2,t:b.t[i],k:i});}
+      const p=i-3;if(p>=3){let ok=true;for(let j=p-3;j<=p+3;j++){if(j!==p&&c[j]<=c[p]){ok=false;break;}}if(ok)pl.push(p);}
+      if(pl.length>=2){const ls=pl[pl.length-2],hd=pl[pl.length-1];
+        if(c[hd]<c[ls]&&hd-ls<=60&&i-hd>=2&&i-hd<=40){let N=-Infinity;for(let j=ls;j<=hd;j++)N=Math.max(N,c[j]);let mn=Infinity;for(let j=hd+1;j<=i;j++)mn=Math.min(mn,l[j]);
+          if(green&&c[i]>N&&c[i-1]<=N&&mn>c[hd]&&Math.abs(mn/c[ls]-1)<0.08)S.push({type:"HNS",lo:N,hi:N,k:i,touched:false,broken:false});}}
+      if(i%50===0){for(const A of [S,R]){for(let q=A.length-1;q>=0;q--){if(A[q].broken||(A[q].touched&&A[q].type!=="BO")||i-A[q].k>500)A.splice(q,1);}}}
+    }
+    return {ev,rAll};
+  }
+  function trendlines(b){
+    const n=b.n,{l,c}=b,t111=new Uint8Array(n),tbr=new Uint8Array(n),tL=new F64(n).fill(NaN);const PL=[],PH=[];let used111=-1,brk=null,usedBr=-1;
+    for(let i=6;i<n;i++){const p=i-3;{let lo=true,hi=true;for(let j=p-3;j<=p+3;j++){if(j===p)continue;if(c[j]<=c[p])lo=false;if(c[j]>=c[p])hi=false;}if(lo)PL.push(p);if(hi)PH.push(p);}
+      if(PL.length>=2){const B=PL[PL.length-1],A=PL[PL.length-2];if(c[B]>c[A]&&B-A>=5&&B!==used111){const line=k=>c[A]+(c[B]-c[A])*(k-A)/(B-A);const gap=i-B;
+        if(gap>=0.5*(B-A)&&gap<=2*(B-A)){let intact=true;for(let k=B+1;k<i;k++)if(c[k]<line(k)*0.99){intact=false;break;}const L=line(i);if(intact&&l[i]<=L*1.005&&c[i]>=L){t111[i]=1;tL[i]=L;used111=B;}}}}
+      if(PH.length>=2){const B=PH[PH.length-1],A=PH[PH.length-2];if(c[B]<c[A]&&B-A>=5){const line=k=>c[A]+(c[B]-c[A])*(k-A)/(B-A);
+        if((!brk||brk.B!==B)&&i>B&&c[i]>line(i)*1.01&&c[i-1]<=line(i-1)*1.01)brk={B,k:i,line};
+        if(brk&&brk.B===B&&usedBr!==B&&i>brk.k&&i-brk.k<=20){const L=brk.line(i);if(l[i]<=L*1.01&&c[i]>L){tbr[i]=1;tL[i]=L;usedBr=B;}}}}}
+    return {t111,tbr,tL};
+  }
+  return {agg,buildLevels,trendlines};
+})();
+function obstacle(b,i,rAll){ // 上方 3% 內還沒被突破的大週期壓力
+  const en=b.c[i];let hit=null;
+  for(const r of rAll){if(r.t<b.t[i]&&r.p>en&&r.p<=en*1.03){let brk=false;for(let j=i;j>=0&&b.t[j]>=r.t;j--){if(b.c[j]>r.p){brk=true;break;}}if(!brk&&(!hit||r.p<hit))hit=r.p;}}
+  return hit;
+}
+function simTrade(b,i,tp,sl,mh){if(i+1>=b.n)return null;const en=b.o[i+1],T=en*(1+tp),S=en*(1-sl);
+  for(let j=i+1;j<b.n&&j<=i+mh;j++){if(b.l[j]<=S)return [0,-sl,j];if(b.h[j]>=T)return [1,tp,j];}
+  if(i+mh<b.n){const r=b.c[i+mh]/en-1;return [r>0?1:0,r,i+mh];}return null;}
+const r2=x=>(x==null||isNaN(x))?null:Math.round(x*100)/100;
+const SUN={CL:"經典",GAP:"缺口",BO:"突破",BOCC:"突破CC",HNS:"頭肩"};
+
+/* ================= 單檔分析 ================= */
+function analyze(t, d){
+  // ---- A：日線 ----
+  const {flags,X}=osFlags(d), TL=SNR.trendlines(d), mR=SNR.buildLevels(SNR.agg(d,"M")).rAll, L=d.n-1;
+  const aAt=i=>{const os=osWithin(flags,i);if(!os.length)return null;const tl=TL.t111[i]?"延續型 111":TL.tbr[i]?"突破回踩 11b2":null;if(!tl)return null;
+    const ob=obstacle(d,i,mR);if(ob)return null;return {os,tl,line:r2(TL.tL[i])};};
+  const A=aAt(L);const histA=[];for(let i=Math.max(L-59,210);i<=L;i++){const s=aAt(i);if(s)histA.push(d.t[i]);}
+  // ---- B：週線（只看已收完的週） ----
+  const w=SNR.agg(d,"W"),lastDow=new Date(d.t[L]+"T00:00:00Z").getUTCDay();let K=w.n-1;if(lastDow!==5)K--;
+  let B=null,histB=[],bAll=null;
+  if(w.n>80){const wl=SNR.buildLevels(w),wf=osFlags(w).flags,qR=SNR.buildLevels(SNR.agg(d,"Q")).rAll;
+    const bAt=k=>{if(!(k>1&&w.c[k]>w.o[k]&&w.c[k]>w.c[k-1]))return null;const types=wl.ev.rejT[k-1];if(!types)return null;
+      const os=osWithin(wf,k);if(!os.length)return null;if(obstacle(w,k,qR))return null;return {types,lvl:r2(wl.ev.rejP[k-1]),os,week:w.t[k]};};
+    bAll=bAt;B=bAt(K);for(let k=Math.max(K-25,60);k<=K;k++){if(bAt(k))histB.push(w.t[k]);}
+    if(B){B.price=r2(w.c[K]);B.fresh=(w.t[K]===d.t[L]);}}
+  const own={A:{n:0,w:0,er:0},B:{n:0,w:0,er:0}};
+  {let busy=-1;for(let i=210;i<L;i++){if(i<=busy||!aAt(i))continue;const x=simTrade(d,i,PICK.A.tp,PICK.A.sl,PICK.A.mh);if(!x)continue;busy=x[2];own.A.n++;own.A.w+=x[0];own.A.er+=x[1];}}
+  if(w.n>80&&bAll){let busy=-1;for(let k=60;k<K;k++){if(k<=busy||!bAll(k))continue;const x=simTrade(w,k,PICK.B.tp,PICK.B.sl,PICK.B.mh);if(!x)continue;busy=x[2];own.B.n++;own.B.w+=x[0];own.B.er+=x[1];}}
+  for(const g of ["A","B"])own[g].er=own[g].n?r2(own[g].er/own[g].n*100):0;
+  const on=[];if(A)on.push("A");if(B&&B.fresh)on.push("B");
+  let old=null;try{old=OLDX.analyze(t,toObjs(d),BENCH);}catch(e){}
+  let vcp=null;try{vcp=vcpAnalyze(d);keepBars(t,d);}catch(e){}
+  return {ticker:t,old,vcp,pb:probOf(d),price:r2(d.c[L]),date:d.t[L],A,B,on,own,histA,histB,grade:on.length?"Y":"N",
+    rsi:r2(X.rsi[L]),wt:r2(X.wt[L]),ma:{"20":r2(X.s20[L]),"50":r2(X.s50[L]),"200":r2(X.s200[L])},
+    hi52:r2(Math.max(...d.h.slice(-252))),lo52:r2(Math.min(...d.l.slice(-252)))};
+}
+
+/* ================= 原版儀表板分析（趨勢模板／VCP／底背離／壓力位，1 年資料） ================= */
+const OLDX=(function(){
+/* ---------- 指標工具 ---------- */
+const sma = (a,n) => a.map((_,i) => i<n-1 ? NaN : a.slice(i-n+1,i+1).reduce((s,x)=>s+x,0)/n);
+function ema(a,n){ const k=2/(n+1), o=[]; let p=NaN;
+  a.forEach((x,i)=>{ if(isNaN(x)){o.push(NaN);return;} p = isNaN(p) ? x : x*k + p*(1-k); o.push(p); }); return o; }
+function rma(a,n){ const o=[]; let p=NaN, cnt=0, sum=0;
+  a.forEach(x=>{ if(isNaN(p)){ sum+=x; cnt++; if(cnt===n){p=sum/n;} o.push(isNaN(p)?NaN:p); } else { p=(p*(n-1)+x)/n; o.push(p);} }); return o; }
+function rsi(c,n=14){ const g=[0],l=[0];
+  for(let i=1;i<c.length;i++){ const d=c[i]-c[i-1]; g.push(Math.max(d,0)); l.push(Math.max(-d,0)); }
+  const ag=rma(g,n), al=rma(l,n); return ag.map((x,i)=> isNaN(x)?NaN : al[i]===0?100 : 100-100/(1+x/al[i])); }
+function stoch(h,l,c,n=14,s=3){ const k=c.map((x,i)=>{ if(i<n-1) return NaN;
+  const hh=Math.max(...h.slice(i-n+1,i+1)), ll=Math.min(...l.slice(i-n+1,i+1)); return hh===ll?50:(x-ll)/(hh-ll)*100; }); return sma(k.map(x=>isNaN(x)?0:x),s).map((x,i)=>i<n+s-2?NaN:x); }
+function cci(h,l,c,n=20){ const tp=c.map((x,i)=>(h[i]+l[i]+x)/3), m=sma(tp,n);
+  return tp.map((x,i)=>{ if(i<n-1) return NaN; const w=tp.slice(i-n+1,i+1); const md=w.reduce((s,y)=>s+Math.abs(y-m[i]),0)/n; return md===0?0:(x-m[i])/(0.015*md); }); }
+function mfi(h,l,c,v,n=14){ const tp=c.map((x,i)=>(h[i]+l[i]+x)/3);
+  return tp.map((x,i)=>{ if(i<n) return NaN; let p=0,q=0; for(let j=i-n+1;j<=i;j++){ const f=tp[j]*v[j]; if(tp[j]>tp[j-1]) p+=f; else if(tp[j]<tp[j-1]) q+=f; } return q===0?100:100-100/(1+p/q); }); }
+function cmf(h,l,c,v,n=20){ const mf=c.map((x,i)=> h[i]===l[i]?0:((x-l[i])-(h[i]-x))/(h[i]-l[i])*v[i]);
+  return c.map((_,i)=>{ if(i<n-1) return NaN; let a=0,b=0; for(let j=i-n+1;j<=i;j++){a+=mf[j];b+=v[j];} return b===0?0:a/b; }); }
+function obv(c,v){ const o=[0]; for(let i=1;i<c.length;i++) o.push(o[i-1] + (c[i]>c[i-1]?v[i]:c[i]<c[i-1]?-v[i]:0)); return o; }
+function wavetrend(h,l,c){ const ap=c.map((x,i)=>(h[i]+l[i]+x)/3), esa=ema(ap,10), d=ema(ap.map((x,i)=>Math.abs(x-esa[i])),10);
+  const ci=ap.map((x,i)=> d[i]===0?0:(x-esa[i])/(0.015*d[i])); return ema(ci,21); }
+
+/* ---------- 底背離（10 指標） ---------- */
+function pivotLows(l, left=5, right=3){
+  const p=[]; for(let i=left;i<l.length-right;i++){ let ok=true;
+    for(let j=i-left;j<=i+right;j++){ if(j!==i && l[j] < l[i]){ok=false;break;} } if(ok) p.push(i); }
+  return p;
+}
+function divergences(bars, ind){
+  const l=bars.map(b=>b.l), n=l.length, piv=pivotLows(l);
+  if(piv.length<2) return [];
+  const p2 = piv[piv.length-1];
+  if(n-1-p2 > 12) return [];                       // 最近的低點必須夠新
+  const hits=[];
+  for(const [name,arr] of Object.entries(ind)){
+    for(let k=piv.length-2;k>=0;k--){
+      const p1=piv[k]; if(p2-p1<5) continue; if(p2-p1>60) break;
+      if(l[p2] < l[p1] && !isNaN(arr[p1]) && !isNaN(arr[p2]) && arr[p2] > arr[p1]){ hits.push(name); break; }
+    }
+  }
+  return hits;
+}
+
+/* ---------- 壓力位 ---------- */
+function resistances(bars, price){
+  const h=bars.map(b=>b.h), v=bars.map(b=>b.v), n=h.length, av=v.reduce((s,x)=>s+x,0)/n || 1, piv=[];
+  for(let i=3;i<n-1;i++){ let ok=true; for(let j=Math.max(0,i-5);j<=Math.min(n-1,i+5);j++){ if(j!==i && h[j]>h[i]){ok=false;break;} } if(ok && h[i]>price) piv.push(i); }
+  const hi=Math.max(...h); const hiIdx=h.lastIndexOf(hi); if(hi>price && !piv.includes(hiIdx)) piv.push(hiIdx);
+  const cl=[];
+  piv.sort((a,b)=>h[a]-h[b]).forEach(i=>{
+    const c=cl.find(x=>Math.abs(h[i]-x.lv)/x.lv<=0.015);
+    if(c){ c.idx.push(i); c.lv=Math.max(c.lv,h[i]); } else cl.push({lv:h[i], idx:[i]});
+  });
+  return cl.map(c=>{
+    const touches=c.idx.length, rv=Math.min(1.5, Math.max(...c.idx.map(i=>v[i]/av))*0.6), recent=c.idx.some(i=>n-1-i<=60)?0.5:0;
+    const s=Math.min(5, 1+0.6*touches+rv+recent+(c.lv===hi?0.4:0));
+    return {"價位":+c.lv.toFixed(2),"距離%":+((c.lv/price-1)*100).toFixed(1),"觸碰次數":touches,"強度":+s.toFixed(1)};
+  }).filter(x=>x["距離%"]>0 && x["距離%"]<=30).sort((a,b)=>a["價位"]-b["價位"]).slice(0,4);
+}
+
+/* ---------- 單檔分析 ---------- */
+const r2 = x => (x==null||isNaN(x)) ? null : Math.round(x*100)/100;
+const r1 = x => (x==null||isNaN(x)) ? null : Math.round(x*10)/10;
+const avg = a => a.reduce((s,x)=>s+x,0)/(a.length||1);
+function analyze(t, bars, BENCH){
+  const n=bars.length, c=bars.map(b=>b.c), h=bars.map(b=>b.h), l=bars.map(b=>b.l), o=bars.map(b=>b.o), v=bars.map(b=>b.v);
+  const L=n-1, price=c[L];
+  const m20=sma(c,20), m50=sma(c,50), m150=sma(c,150), m200=sma(c,200);
+  const R=rsi(c);
+  const e12=ema(c,12), e26=ema(c,26), macd=e12.map((x,i)=>x-e26[i]), sig=ema(macd,9), hist=macd.map((x,i)=>x-sig[i]);
+  const cv=c.map((x,i)=>x*v[i]), vw=(nn)=>{const a=ema(cv,nn), b=ema(v,nn); return a.map((x,i)=>b[i]?x/b[i]:NaN);}, vwmacd=vw(12).map((x,i)=>x-vw(26)[i]);
+  const K=stoch(h,l,c), C=cci(h,l,c), MOM=c.map((x,i)=>i<10?NaN:x-c[i-10]), MF=mfi(h,l,c,v), CM=cmf(h,l,c,v), OB=obv(c,v), WT=wavetrend(h,l,c);
+  const hi52=Math.max(...h), lo52=Math.min(...l);
+
+  // 相對強度 vs SPY（同期報酬比）
+  let rs=null;
+  if(BENCH){ const bm=new Map(BENCH.map(b=>[b.t,b.c])); const first=bars.find(b=>bm.has(b.t));
+    if(first){ const b0=bm.get(first.t), b1=bm.get(bars[L].t) ?? BENCH[BENCH.length-1].c; rs=r2((price/first.c)/(b1/b0)); } }
+
+  // 趨勢模板
+  const m200up = n>=220 && m200[L] > m200[L-20];
+  const tt = {
+    "股價 > 150MA 且 > 200MA": price>m150[L] && price>m200[L],
+    "150MA > 200MA": m150[L]>m200[L],
+    "200MA 上升中": !!m200up,
+    "50MA > 150MA 且 > 200MA": m50[L]>m150[L] && m50[L]>m200[L],
+    "股價 > 50MA": price>m50[L],
+    "高於 52 週低點 30%": price>=lo52*1.3,
+    "距 52 週高點 25% 內": price>=hi52*0.75,
+    "相對強度勝過大盤": rs!=null && rs>1
+  };
+  const tt_score = Object.values(tt).filter(Boolean).length;
+
+  // VCP
+  const amp = (a,b) => { const hh=Math.max(...h.slice(n-b,n-a)), ll=Math.min(...l.slice(n-b,n-a)); return r2((hh-ll)/hh*100); };
+  const near=amp(0,10), mid=amp(10,25), far=amp(25,50);
+  const v50=avg(v.slice(-50)), v10=avg(v.slice(-10));
+  const pivot=Math.max(...h.slice(n-11,n-1));
+  const broke = price > pivot;
+  const vcp = {"波動收縮": near<mid && mid<far, "量能乾涸": v10 < v50*0.75, "樞紐點": r2(pivot),
+    "突破放量": broke && v[L] > v50*1.5, "已突破": broke, "振幅 近/中/遠":[near,mid,far]};
+
+  // 背離
+  const div = divergences(bars, {"RSI":R,"MACD":macd,"MACD柱":hist,"Stoch":K,"CCI":C,"MOM":MOM,"MFI":MF,"CMF":CM,"OBV":OB,"VWMACD":vwmacd});
+  const dn=div.length, dscore = dn===0?0 : dn<=2?1 : dn<=4?2 : 3;
+
+  // 超賣訊號
+  let td=0; for(let i=L;i>=4 && c[i]<c[i-4];i--) td++;
+  const sig30 = price <= Math.min(...l.slice(-30))*1.0001 || l[L] <= Math.min(...l.slice(-31,-1));
+  const signals = {"RSI < 30":R[L]<30, "WaveTrend 超賣":WT[L]<-60, "CCI < -150":C[L]<-150, "TD 九轉衰竭":td>=9};
+  signals[`底背離 ${dn} 個指標 (${dscore}分)`] = dn>0;
+  signals["30 日新低"] = sig30;
+  const confluence = dscore + ["RSI < 30","WaveTrend 超賣","CCI < -150","TD 九轉衰竭","30 日新低"].filter(k=>signals[k]).length;
+
+  // 回檔 / 確認
+  const h20=Math.max(...h.slice(-20)), pb=(h20-price)/h20*100;
+  const pbd = {"自 20 日高回檔 3~20%": pb>=3 && pb<=20, "回檔至 50MA 附近": Math.abs(price/m50[L]-1)<=0.03,
+    "RSI 冷卻至 40~60": R[L]>=40 && R[L]<=60, "回檔量縮": avg(v.slice(-5)) < avg(v.slice(-20)),
+    "止跌跡象": price>c[L-1] || (Math.min(o[L],price)-l[L]) >= 2*Math.abs(price-o[L])};
+  const low10=Math.min(...l.slice(-10));
+  const confirm = {"不破前低": Math.min(...l.slice(-5)) >= Math.min(...l.slice(-15,-5)), "止跌K": price>o[L],
+    "20MA走平": (m20[L]/m20[L-5]-1) >= -0.005, "20MA上彎": m20[L] > m20[L-5]};
+
+  // V4 分級
+  const v4 = {"背離≥5": dn>=5, "量能乾涸": vcp["量能乾涸"], "波動收縮": vcp["波動收縮"]};
+  v4["全部符合"] = v4["背離≥5"] && v4["量能乾涸"] && v4["波動收縮"];
+  const grade4 = v4["全部符合"] ? "A" : (dn>=5 && (v4["量能乾涸"]||v4["波動收縮"])) ? "B" : tt_score>=7 ? "C" : "D";
+
+  // 計畫
+  const res = resistances(bars, price);
+  const risk10 = (price-low10)/price*100;
+  const fixedStop = price*0.88, useLow = risk10>0 && risk10<=12;
+  const stop = useLow ? low10 : fixedStop, risk = (price-stop)/price*100;
+  const first = res[0] || null, reward = first ? first["距離%"] : 10;
+  const plan = {price:r2(price), fixed_tgt:r2(price*1.10), fixed_stop:r2(fixedStop), stop:r2(stop), stop_src: useLow?"10日低點":"固定-12%",
+    risk:r1(risk), res, first_res:first, reward_to_res:reward, rr: risk>0 ? r2(reward/risk) : null};
+
+  return {ticker:t, price:r2(price), date:bars[L].t, tt_score, tt_pass: tt_score>=7, tt_detail:tt, vcp, confluence_score:confluence, signals,
+    divergence:{"數量":dn,"指標":div,"得分":dscore,"通過驗證門檻":dn>=5},
+    pullback:{"回檔%":r1(pb),"分數":Object.values(pbd).filter(Boolean).length+"/5","細項":pbd}, confirm,
+    ma:{"20":r2(m20[L]),"50":r2(m50[L]),"150":r2(m150[L]),"200":r2(m200[L])},
+    "52w":{high:r2(hi52),low:r2(lo52),"距高點%":r1((price/hi52-1)*100)},
+    rsi:r1(R[L]), rs_vs_bench:rs, stop:r2(low10), risk_pct:r1(risk10), resistance:res, v4, grade4, plan, isRec: grade4==="A"};
+}
+
+
+return {analyze};
+})();
+let BENCH=null;
+const toObjs=(d,k=252)=>{const o=[];for(let i=Math.max(0,d.n-k);i<d.n;i++)o.push({t:d.t[i],o:d.o[i],h:d.h[i],l:d.l[i],c:d.c[i],v:d.v[i]});return o;};
+
+/* ================= VCP（波動收縮型態）規則檢查：Minervini 7 條 ================= */
+const VCP_RULES=["前段有漲勢（50日線>200日線、離一年低點 +30% 以上）","收縮 2–4 次","每次收縮比上一次淺（≤ 上次 × 0.75）","第一次收縮 8–35%","最後一次收縮 ≤ 10%（夠緊）","量能乾涸（近 10 日均量 < 50 日均量 × 0.75）","股價在樞紐點 -5% ~ +3% 之間（買點附近）"];
+function vcpAnalyze(d){
+  if(d.n<120)return null;let best=null;
+  for(const k of [90,60,40,25,12]){const r=vcpCore(d,k);if(!r)continue;if(!best||r.score>best.score||(r.score===best.score&&r.baseLen>best.baseLen))best=r;}
+  return best||{score:0,rules:[false,false,false,false,false,false,false],state:"創新高中（還沒有基底）",pivot:null,dist:null,dry:null,brkVol:false,cs:[]};}
+function vcpCore(d,gapK){
+  const n=d.n,H=d.h,Lw=d.l,C=d.c,V=d.v;
+  const W=Math.min(130,n),s=n-W;
+  let tr=0;for(let i=n-14;i<n;i++)tr+=Math.max(H[i]-Lw[i],Math.abs(H[i]-C[i-1]),Math.abs(Lw[i]-C[i-1]));const atrPct=tr/14/C[n-1];
+  const th=Math.max(0.03,1.5*atrPct);
+  // 基底起點：視窗內（不含最後 5 根）最高點
+  if(n-gapK<=s+5)return null;let i0=s;for(let i=s;i<=n-gapK;i++)if(H[i]>H[i0])i0=i;
+  const H0=H[i0];
+  for(let i=i0+1;i<=n-10;i++)if(H[i]>H0*1.02)return null;   // 基底期間不能已經突破過（最後 10 根內突破算「剛突破」）
+  // 從 i0 開始做 zigzag（百分比門檻）
+  const piv=[{i:i0,p:H0,t:"H"}];let dir=-1,ei=i0,ev=H0;
+  for(let i=i0+1;i<n;i++){
+    if(dir===-1){if(Lw[i]<ev){ev=Lw[i];ei=i;}else if(H[i]>=ev*(1+th)){piv.push({i:ei,p:ev,t:"L"});dir=1;ev=H[i];ei=i;}}
+    else{if(H[i]>ev){ev=H[i];ei=i;}else if(Lw[i]<=ev*(1-th)){piv.push({i:ei,p:ev,t:"H"});dir=-1;ev=Lw[i];ei=i;}}}
+  // 進行中的最後一段
+  const tail={i:ei,p:ev,t:dir===-1?"L":"H"};
+  const cs=[];let k=0;
+  while(k<piv.length){
+    const hi=piv[k];if(hi.t!=="H"){k++;continue;}
+    if(cs.length&&hi.p>H0*1.02)break;                // 已突破基底高點
+    let lo=piv[k+1];let live=false;
+    if(!lo){if(tail.t==="L"&&tail.i>hi.i){lo=tail;live=true;}else break;}
+    const depth=(hi.p-lo.p)/hi.p*100;if(depth<2)break;
+    cs.push({hi:hi.i,lo:lo.i,high:hi.p,low:lo.p,depth,live});k+=2;}
+  if(cs.length>4)cs.splice(0,cs.length-4);
+  const price=C[n-1];
+  const sma=(m)=>{let a=0;for(let j=n-m;j<n;j++)a+=C[j];return a/m;};
+  const m50=sma(50),m200=n>=200?sma(200):NaN;let lo52=Infinity;for(let j=Math.max(0,n-252);j<n;j++)lo52=Math.min(lo52,Lw[j]);
+  let v10=0,v50=0;for(let j=n-10;j<n;j++)v10+=V[j];for(let j=n-50;j<n;j++)v50+=V[j];const dry=v50?(v10/10)/(v50/50):1;
+  let pivot=H0;for(let j=cs.length-1;j>=0;j--){pivot=cs[j].high;break;}
+  const dist=(price/pivot-1)*100;
+  const dec=cs.length>=2&&cs.every((c,j)=>j===0||c.depth<=cs[j-1].depth*0.75);
+  const rules=[m50>m200&&price>=lo52*1.3, cs.length>=2&&cs.length<=4&&n-1-i0>=15, dec, cs.length>0&&cs[0].depth>=8&&cs[0].depth<=35,
+    cs.length>=2&&cs[cs.length-1].depth<=10, dry<0.75, dist>=-5&&dist<=3];
+  const score=rules.filter(Boolean).length;
+  const lastLow=cs.length?cs[cs.length-1].low:null;
+  let state;
+  if(lastLow&&price<lastLow)state="型態破壞";
+  else if(dist>5)state="已延伸（追高風險）";
+  else if(dist>0)state="剛突破樞紐";
+  else if(dist>=-5)state="接近樞紐（可觀察）";
+  else state="築底中";
+  const vol50=v50/50,brkVol=V[n-1]>vol50*1.5;
+  return {score,rules,state,pivot:+pivot.toFixed(2),dist:+dist.toFixed(1),dry:+dry.toFixed(2),brkVol,
+    cs:cs.map((c,j)=>({lab:"T"+(j+1),d:+c.depth.toFixed(1),hi:c.hi-s,lo:c.lo-s,high:+c.high.toFixed(2),low:+c.low.toFixed(2),from:d.t[c.hi],to:d.t[c.lo],live:c.live})),
+    start:s,base:i0-s,baseLen:n-1-i0};
+}
+
+/* ================= VCP 介面：篩選結果小圖、個股 VCP 圖、學習區 ================= */
+const SNAP = {"asof":"2026-10-01","pool":526,"fund":1371,"full":[["ALNT","Electronic Components",115.95,16.5,-2.3,2,10,78],["AMD","Semiconductors",615.73,20.3,-3.6,1005.2,50,74],["BWMN","Engineering & Construction",42.59,10.1,-7.1,0.7,20,55],["CDNA","Diagnostics & Research",66.23,33.4,-1.6,3.4,52,101],["CLMB","Electronics & Computer Distribution",33.06,16.4,-8.8,0.6,9,79],["CNXN","Electronics & Computer Distribution",92.57,10.9,-1,2.3,12,42],["COHU","Semiconductor Equipment & Materials",70.34,29.8,-5.7,3.3,38,115],["CRVL","Insurance Brokers",74.72,10.6,-5.9,3.8,11,55],["CRWD","Software - Infrastructure",266.09,22,-1.2,273,26,78],["CVI","Oil & Gas Refining & Marketing",54.36,29.8,-1.5,5.5,55,104],["DDOG","Software - Application",276.46,13.3,-5.6,99.3,36,87],["DELL","Computer Hardware",541.74,11.4,-9,344.4,58,38],["DINO","Oil & Gas Refining & Marketing",112.7,14,-4.8,20,53,89],["DOCU","Software - Application",69.74,11.2,-7,13,9,96],["DT","Software - Application",59.26,15.9,-0.3,17.1,16,108],["FEIM","Communication Equipment",85.97,18.9,-4.2,1,70,52],["FORM","Semiconductor Equipment & Materials",148.44,29.6,-7.4,11.6,32,94],["HBB","Furnishings, Fixtures & Appliances",37.12,20,-7.2,0.5,12,34],["HNGE","Health Information Services",97.94,11.2,-0.5,7.9,53,79],["HPE","Communication Equipment",64.58,16.8,-3.8,85.7,34,90],["HTFL","Health Information Services",48.91,17.6,-6.3,4.3,48,90],["HURN","Consulting Services",168.42,10.2,-9.8,2.5,16,108],["IBEX","Information Technology Services",44.28,16.1,-2.2,0.6,12,86],["IDT","Telecom Services",79.98,17.1,-2.2,2,7,62],["ILMN","Diagnostics & Research",265.72,22.2,-5.2,40.1,9,105],["INSW","Oil & Gas Midstream",114.6,14.5,-0.2,5.7,140,84],["KEYS","Scientific & Technical Instruments",373.88,12.3,-0.7,63.7,37,92],["KRT","Packaging & Containers",53.37,12.4,-2.4,1.1,10,37],["LIND","Travel Services",33.63,13.3,-3.9,2.2,19,82],["LITE","Communication Equipment",1045.78,19.7,-3.7,93.8,109,94],["LPG","Oil & Gas Midstream",56.59,12.3,-5.6,2.4,124,73],["MPC","Oil & Gas Refining & Marketing",420.15,15.7,-2.5,118,54,79],["MTRN","Other Industrial Metals & Mining",285.14,13.9,-6.4,5.9,42,99],["MTW","Farm & Heavy Construction Machinery",22.4,16.8,-3.3,0.8,10,78],["NET","Software - Infrastructure",351,14.7,-4.5,125,36,82],["NTAP","Software - Infrastructure",215.05,12.5,-0.8,42.2,30,101],["NTRA","Diagnostics & Research",408.47,24.5,-4.4,58.9,38,97],["OKTA","Software - Infrastructure",212.63,30.3,-0.6,37.2,11,95],["P","Computer Hardware",134.13,33.1,-1.1,44.7,38,84],["PBF","Oil & Gas Refining & Marketing",82.34,15.5,-0.3,9.8,56,91],["PLTR","Software - Infrastructure",190.04,12.8,-8.4,456.7,93,61],["PRLB","Metal Fabrication",94.37,12.2,-4.2,2.3,11,95],["PSX","Oil & Gas Refining & Marketing",264.23,10.3,-4.7,105.4,53,80],["PUBM","Software - Application",19.18,17.8,-0.6,0.9,11,61],["QMCO","Computer Hardware",31.89,49.5,-8.1,1.3,26,18],["RBRK","Software - Infrastructure",115.4,21.1,-1.4,23.9,38,69],["RDVT","Software - Application",80.25,11.5,-1.9,1.3,23,66],["RGR","Aerospace & Defense",43.71,12.6,-9.3,0.7,19,61],["RNG","Software - Application",78.31,16.6,-4.4,6.5,6,106],["ROG","Electronic Components",155.8,18.4,-7.8,2.8,7,96],["S","Software - Infrastructure",24.67,15.5,-0.1,8.6,21,79],["SCSC","Electronics & Computer Distribution",62.22,10.5,-6.8,1.3,17,110],["SDGR","Health Information Services",30.46,45,-6.1,2.3,8,90],["SMTC","Semiconductors",186.59,28.8,-2.1,17.4,33,101],["TH","Specialty Business Services",20.48,13.7,-5.9,2,39,51],["TWIN","Specialty Industrial Machinery",26.86,11.1,-0.4,0.4,18,66],["TWLO","Software - Infrastructure",301.27,28.2,-1.5,46.3,22,91],["TWST","Biotechnology",188.05,40.6,-6.1,11.8,23,127],["VEEV","Health Information Services",281.93,13.3,-9.2,45.6,18,91],["VLO","Oil & Gas Refining & Marketing",408.46,15.7,-2.5,117.6,52,87],["XMTR","Industrial Distribution",104.23,13.8,-3.4,6,41,99],["ZETA","Software - Infrastructure",32.4,15,-1.2,8.1,44,76]],"recs":[{"t":"LPLA","g":"A","p":312.15,"how":"趨勢線突破回踩 11b2（線 $298.59）","os":["wt","kd"],"own":[4,4,5],"last":"2026-08-31"},{"t":"VIRT","g":"A","p":55.62,"how":"趨勢線突破回踩 11b2（線 $53.51）","os":["kd","nl","rsi"],"own":[3,3,5],"last":"2026-08-27"},{"t":"OMDA","g":"A","p":20.41,"how":"趨勢線突破回踩 11b2（線 $19.89）","os":["nl","kd"],"own":[0,0,0],"last":"2026-08-27"}],"vcp":"ALNT|5|1101101|0|117.53|-1.3|0.94|19.1/14/11.7/8.9;AMD|3|1100100|3|526.79|16.9|1.02|7.2/12.8/10.3/8.8;BWMN|2|1000001|0|42.64|-0.1|1.07|;CDNA|1|1000000|3|54.49|21.5|1.34|2.5;CLMB|4|1101100|3|29.23|13.1|1.4|8.7/8.4/7.7/8.9;CNXN|4|1101100|1|88.35|4.8|1.09|11.6/4.7/5.1/4.8;COHU|3|1101000|3|58.7|19.8|0.89|8.8/21.6/19.4/18;CRVL|4|1100101|1|73|2.4|1.21|5.1/3.5/8.6/5.3;CRWD|0|0000000|5||||;CVI|2|1000001|1|53.93|0.8|1.09|7.7;DDOG|5|1101101|0|280.7|-1.5|0.8|9/15.1/19.3/9;DELL|0|0000000|5||||;DINO|0|0000000|5||||;DOCU|4|1001101|0|70.36|-0.9|0.99|11.5/9.2;DT|0|0000000|5||||;FEIM|4|1001101|0|89.6|-4.1|1.06|9.8/9;FORM|3|1101000|3|117.12|26.7|1.1|9.7/25.1/19.2/14.3;HBB|2|1001000|3|34.12|8.8|1.19|13.6;HNGE|5|1101101|1|96.66|1.3|1.03|10.3/8/7.1;HPE|3|1101000|1|61.99|4.2|0.91|10.1/19.1/18.1/11.5;HTFL|3|1101000|2|52.22|-6.3|0.93|12.3/10.4;HURN|4|1101001|1|165.37|1.8|1.05|15/8/7/12.8;IBEX|1|1000000|3|41.91|5.7|1.07|6.7;IDT|2|1001000|3|72.13|10.9|2.07|8.2;ILMN|0|0000000|5||||;INSW|3|1001001|1|111.94|2.4|1.25|11.2;KEYS|3|1100100|3|339.18|10.2|0.88|5.5/16.3/4.7/8.2;KRT|4|1101100|3|49.73|7.3|1.3|8.4/9.1;LIND|3|1101000|3|29.47|14.1|1.2|23.5/8.6/9.1/10.7;LITE|3|1101000|1|1002|4.4|1.06|15/15.6/19/12.1;LPG|3|1001001|0|59.17|-4.4|1.07|12;LPLA|4|0101101|0|319.57|-2.3|1.45|9/20.7/6.1;MPC|0|0000000|5||||;MTRN|5|1101110|3|259.53|9.9|0.73|25/13/6.1/9.5;MTW|0|0000000|5||||;NET|4|1111000|3|309.53|13.4|0.9|18/13;NTAP|4|1101100|3|199.62|7.7|1.04|11.4/8.3/14.9/6.8;NTRA|0|0000000|5||||;OKTA|1|1000000|3|191.99|10.8|1.16|6;OMDA|3|1101000|2|21.52|-5.2|1.16|24.1/7.4/13.2;P|3|1101000|3|103.5|29.6|2.35|15.9/20.5/10.9;PBF|2|1001000|1|78.48|4.9|1.14|16.4/12.8;PLTR|5|1101011|1|185.83|2.3|0.65|11.3/11.5;PRLB|5|1111100|3|82.55|14.3|1.34|17.8/5.7;PSX|0|0000000|5||||;PUBM|0|0000000|5||||;QMCO|4|1111000|3|25.75|23.8|1.29|29/15.3;RBRK|5|1111100|3|94.61|22|0.88|20.3/9.3;RDVT|3|1000101|0|80.29|0|0.81|4.9/9.8;RGR|3|1100100|3|38.83|12.6|1.77|7/5.4/6/4.7;RNG|3|1001001|1|77.95|0.5|0.91|12.8;ROG|4|1101100|2|165.94|-6.1|1.45|17.4/7.7/8.8/9.6;S|4|1101001|1|24.4|1.1|1.04|17.2/16.9/8.6/10.7;SCSC|3|1100100|3|59.15|5.2|1.02|6.4/6.1/4.7/4.8;SDGR|0|0000000|5||||;SMTC|0|0000000|5||||;TH|0|0000000|5||||;TWIN|4|1101100|3|25|7.4|1.04|11.3/7.5/6.9/5.8;TWLO|4|1101100|3|241.01|25|1.46|16.5/8.6/7.9;TWST|0|0000000|5||||;VEEV|3|1100001|0|288.38|-2.2|1.06|7.6/10.6;VIRT|2|1100000|2|68.51|-18.8|1.11|6.2/8.8/7.1/24.7;VLO|0|0000000|5||||;XMTR|4|1101001|0|107.93|-3.4|1.41|10.1/16.5/15.9/10.4;ZETA|4|1101001|1|32.01|1.2|0.8|9.5/7.6/12.4","prob":{"ALNT":76.2,"AMD":76.2,"BWMN":75.2,"CDNA":76.2,"CLMB":79.2,"CNXN":73.6,"COHU":76.6,"CRVL":75.4,"CRWD":76.2,"CVI":77.4,"DDOG":79.2,"DELL":76.6,"DINO":77.4,"DOCU":79.2,"DT":76.5,"FEIM":76.2,"FORM":76.6,"HBB":79.2,"HNGE":77.4,"HPE":76.2,"HURN":79.2,"IBEX":77.4,"IDT":77.4,"ILMN":76.2,"INSW":76.5,"KEYS":77.4,"KRT":75.4,"LIND":77.4,"LITE":76.2,"LPG":76.5,"MPC":77.4,"MTRN":79.2,"MTW":77.4,"NET":76.2,"NTAP":77.4,"NTRA":76.5,"OKTA":76.2,"P":76.2,"PBF":76.2,"PLTR":79.2,"PRLB":77.4,"PSX":75.4,"PUBM":76.5,"QMCO":76.2,"RBRK":76.2,"RDVT":76.5,"RGR":78.6,"RNG":76.2,"ROG":79.2,"S":76.2,"SCSC":76.5,"SDGR":76.2,"SMTC":76.2,"TH":76.6,"TWIN":75.4,"TWLO":76.2,"TWST":76.2,"VEEV":78,"VLO":77.4,"XMTR":76.2,"ZETA":76.2,"LPLA":80.9,"VIRT":79.3,"OMDA":80.9},"model":{"bH":[-0.2976,-0.182,-0.1031,-0.0402],"bV":[0.014,0.018,0.0227,0.0305],"T":[[78.8,79.9,79.2,81.5,82.2],[76.8,77.6,78.6,80.9,80.9],[76.9,78.1,79.3,79.8,79.2],[75.2,78,78.6,79.2,76.6],[73.6,75.4,76.5,77.4,76.2]]}};
+const VST=["接近樞紐（可觀察）","剛突破樞紐","築底中","已延伸（追高風險）","型態破壞","創新高中（還沒有基底）"];
+const VST_ORDER={"接近樞紐（可觀察）":0,"剛突破樞紐":1,"築底中":2,"已延伸（追高風險）":3,"創新高中（還沒有基底）":4,"型態破壞":5};
+const BARS={};               // 每檔最近 130 根 K（只放記憶體，給 VCP 圖用）
+let GRIDTAB="full", GRIDN=60;
+const SNAPV={};SNAP.vcp.split(";").forEach(x=>{const [t,sc,ru,st,pv,di,dr,dp]=x.split("|");SNAPV[t]={score:+sc,rules:ru.split("").map(b=>b==="1"),state:VST[+st],pivot:pv===""?null:+pv,dist:di===""?null:+di,dry:dr===""?null:+dr,cs:dp?dp.split("/").map((d,i)=>({lab:"T"+(i+1),d:+d})):[]};});
+const SNAPIND={};SNAP.full.forEach(r=>SNAPIND[r[0]]=r[1]);
+function keepBars(t,d){const k=Math.min(130,d.n),s=d.n-k,b=[],m50=[];for(let i=s;i<d.n;i++){let a=0,c=0;for(let j=Math.max(0,i-49);j<=i;j++){a+=d.c[j];c++;}b.push({t:d.t[i],o:d.o[i],h:d.h[i],l:d.l[i],c:d.c[i],v:d.v[i]});m50.push(c>=50?a/c:null);}BARS[t]={b,m50};}
+function vcpBadge(v){if(!v)return "";const c=v.score>=6?"gA":v.score>=5?"gB":v.score>=4?"gC":"gD";return `<span class="badge ${c}" title="符合 ${v.score} 條 VCP 規則">VCP ${v.score}/7</span>`;}
+function seqText(v){return v&&v.cs&&v.cs.length?v.cs.map(c=>`${c.lab} -${c.d}%`).join(" → "):"找不到明確收縮";}
+const SIGWR={A:79.8,B:77.9};let INFO_HTML="",LEARN_HTML="";
+function probOf(d){const M=SNAP.model,n=d.n,c=d.c;let m=0;for(let j=Math.max(0,n-252);j<n;j++)m=Math.max(m,c[j]);const dh=c[n-1]/m-1;const a=[];for(let j=n-20;j<n;j++)a.push(Math.log(c[j]/c[j-1]));const mu=a.reduce((x,y)=>x+y,0)/20;const vol=Math.sqrt(a.reduce((x,y)=>x+(y-mu)**2,0)/20);const bin=(x,b)=>b.filter(v=>x>v).length;return M.T[bin(dh,M.bH)][bin(vol,M.bV)];}
+function probOfRow(r){return r.on&&r.on.length?Math.max(...r.on.map(g=>SIGWR[g])):(r.pb??0);}
+function buyOf(t,price,on,B){if(!on||!on.length)return null;const g=on[0],P=PICK[g],en=g==="A"?price:(B&&B.price)||price;return {g,en,tp:r2(en*(1+P.tp)),sl:r2(en*(1-P.sl))};}
+const PULLWR=78.6;
+function stateOf(v){return v?v.state:"";}
+function rowFromLive(r){const t=r.screen&&r.screen.today,full=fullNow(r),dHi=t?t.dHi:null;return {t:r.ticker,price:r.price,v:r.vcp,full,on:r.on,pb:r.pb,dHi,pull:full&&dHi!=null&&dHi<=-5,buy:buyOf(r.ticker,r.price,r.on,r.B)};}
+function allRows(){const live=DATA.length&&DATA[0].vcp!==undefined;let rows;
+  if(live)rows=DATA.map(rowFromLive);
+  else{const recT={};SNAP.recs.forEach(x=>recT[x.t]=x);rows=SNAP.full.map(r=>({t:r[0],price:r[2],v:SNAPV[r[0]],full:true,dHi:r[4],pull:r[4]<=-5,on:recT[r[0]]?[recT[r[0]].g]:[],pb:SNAP.prob[r[0]]}));
+    SNAP.recs.forEach(x=>{if(!rows.find(r=>r.t===x.t))rows.push({t:x.t,price:x.p,v:SNAPV[x.t],full:false,pull:false,on:[x.g],pb:SNAP.prob[x.t]});});
+    rows.forEach(r=>r.buy=buyOf(r.t,r.price,r.on));}
+  rows.forEach(r=>{const sig=!!(r.on&&r.on.length);r.kind=sig?"sig":"watch";r.p=sig?Math.max(...r.on.map(g=>SIGWR[g])):null;});
+  rows.sort((a,b)=>((a.kind==="sig"?0:1)-(b.kind==="sig"?0:1))||((b.p||0)-(a.p||0))||(a.t<b.t?-1:1));
+  return {rows,live};}
+const CATS=[["full","你的篩選名單（今天全符合）"],["sig","今天建議買"],["all","整個股票池"]];
+let CAT="full";
+function inCat(r,c){return c==="all"||(c==="sig"?r.kind==="sig":c==="full"?r.full:false);}
+function renderTop(){const {rows,live}=allRows(),el=document.getElementById("top20");if(!el)return;
+  const buy=rows.filter(r=>r.kind==="sig").slice(0,10);
+  el.innerHTML=buy.length?buy.map(tile).join(""):'<div style="font-size:15px;padding:6px 2px"><b>今天沒有建議買的股票。</b>沒有訊號就不買，明天收盤後再看。</div>';
+  document.getElementById("topsrc").textContent=live?`即時資料 ${META.asof}（美股收盤）`:`${SNAP.asof} 收盤資料（背景正在更新）`;}
+function gridRows(){const {rows,live}=allRows();const rs=rows.filter(r=>inCat(r,CAT)&&(CAT==="sig"||r.kind!=="sig"));return {rows:rs,live,all:rows};}
+function fzImg(t){return `https://finviz.com/chart.ashx?t=${encodeURIComponent(t)}&ty=c&ta=1&p=d&s=l`;}
+function tile(r){const bu=r.buy,sig=r.kind==="sig";
+  return `<div class="tile${sig?" tbuy":""}" data-t="${r.t}"><div class="th"><b class="ttk">${r.t}</b><span class="dim">$${r.price}</span></div>
+    <div class="tf" style="font-size:14.5px;margin:2px 0 6px">${sig?`<span class="badge gA">A 級</span> <b class="hl">建議買</b>　回測勝率 <b class="hl">${r.p}%</b>`:`<span class="badge gD">B 級</span> <span class="dim">觀察・今天不買</span>`}</div>
+    <img class="fz" loading="lazy" src="${fzImg(r.t)}" alt="${r.t} 日線圖">
+    ${bu?`<div class="tf" style="font-size:14px">${bu.g==="B"?"下週一":"隔天"}開盤買　停利 <b class="y">$${bu.tp}</b>　停損 <b class="n">$${bu.sl}</b></div>`:""}</div>`;}
+function buyRows(){const live=DATA.length&&DATA[0].vcp!==undefined;
+  if(live)return DATA.filter(r=>r.grade==="Y").map(r=>{const g=r.on[0],P=PICK[g],en=g==="A"?r.price:(r.B&&r.B.price)||r.price;return {t:r.ticker,price:r.price,v:r.vcp,on:r.on,buy:{g,en,tp:r2(en*(1+P.tp)),sl:r2(en*(1-P.sl))}};});
+  return SNAP.recs.map(x=>({t:x.t,price:x.p,v:SNAPV[x.t],on:[x.g],buy:{g:x.g,en:x.p,tp:r2(x.p*1.05),sl:r2(x.p*0.85)}}));}
+function renderBuy(){const rows=buyRows(),el=document.getElementById("recs");if(!el)return;
+  el.innerHTML=rows.length?rows.map(tile).join(""):'<div class="dim">今天沒有股票符合。沒訊號就不買 —— 不要為了交易而交易。</div>';}
+function showModal(html){const m=document.getElementById("modal");document.getElementById("panel").innerHTML=html;m.hidden=false;document.body.classList.add("noscroll");m.scrollTop=0;}
+function hideModal(){document.getElementById("modal").hidden=true;document.body.classList.remove("noscroll");}
+function renderGrid(){const {rows,live,all}=gridRows(),el=document.getElementById("grid");if(!el)return;
+  renderTop();renderBrowse(all);
+  document.getElementById("gridtitle").textContent=CATS.find(c=>c[0]===CAT)[1];
+  document.getElementById("gridtabs").innerHTML=`<span class="dim" style="font-size:12.5px">共 ${rows.length} 檔${CAT==="full"?"・符合你的 Finviz 條件，但今天沒有抄底訊號，先觀察":CAT==="all"?"・近 50 個交易日曾符合你的條件":""}</span>`;
+  el.innerHTML=rows.slice(0,GRIDN).map(tile).join("")||'<div class="dim">目前沒有股票'+(!live&&CAT==="all"?"（整個股票池要等即時掃描完成）":"")+'</div>';
+  document.getElementById("gridmore").innerHTML=rows.length>GRIDN?`<button class="btn" id="morebtn">再顯示 ${Math.min(60,rows.length-GRIDN)} 檔（共 ${rows.length}）</button>`:"";}
+function renderBrowse(all){const ch=document.getElementById("chips"),sel=document.getElementById("sel");if(!ch)return;
+  ch.innerHTML=CATS.map(([k,n])=>`<span class="chip${k===CAT?" on":""}" data-g="${k}">${n} ${all.filter(r=>inCat(r,k)).length}</span>`).join("");
+  const list=all.filter(r=>inCat(r,CAT));
+  sel.innerHTML='<option value="">選一檔看細節（共 '+list.length+' 檔）</option>'+list.map(r=>`<option value="${r.t}">${r.kind==="sig"?"【建議買】":""}${r.t} — $${r.price}</option>`).join("");}
+function vcpLevels(t,v){const B=BARS[t];if(!v||v.pivot==null)return null;const P=v.pivot,last=v.cs.length?v.cs[v.cs.length-1]:null;
+  let vol50=null;if(B){const b=B.b.slice(-50);vol50=b.reduce((a,x)=>a+x.v,0)/b.length;}
+  const price=B?B.b[B.b.length-1].c:null;
+  return {P,stop:last?last.low:null,ext:r2(P*1.05),rt1:P,rt2:r2(P*1.03),fail:r2(P*0.97),volNeed:vol50?Math.round(vol50*1.5):null,price};}
+function fmtVol(x){return x>=1e6?(x/1e6).toFixed(1)+"M":x>=1e3?(x/1e3).toFixed(0)+"K":String(x);}
+function vcpSvg(t,v){const B=BARS[t];if(!B||!v)return '<div class="dim">（需要價格資料，按「分析」即時抓取後顯示）</div>';
+  const L=vcpLevels(t,v),st=v.state;
+  const b=B.b,n=b.length,W=780,R=118,Hp=270,Hv=60,P=10;let hi=-Infinity,lo=Infinity,vm=0;b.forEach(x=>{hi=Math.max(hi,x.h);lo=Math.min(lo,x.l);vm=Math.max(vm,x.v);});
+  if(L){hi=Math.max(hi,L.ext);if(L.stop)lo=Math.min(lo,L.stop);}
+  const pad=(hi-lo)*0.07;hi+=pad;lo-=pad;const xw=(W-R-P)/n,X=i=>P+i*xw+xw/2,Y=p=>P+(hi-p)/(hi-lo)*(Hp-2*P),YV=q=>Hp+Hv-q/vm*(Hv-6),xr=W-R+4;
+  let s=`<svg viewBox="0 0 ${W} ${Hp+Hv+4}" class="vsvg" role="img" aria-label="${t} VCP 圖">`;
+  const cs=(v.cs||[]).filter(c=>c.hi!=null);
+  if(L&&(st==="剛突破樞紐"||st==="已延伸（追高風險）")){s+=`<rect x="${P}" y="${Y(L.rt2)}" width="${W-R-P}" height="${Math.max(2,Y(L.rt1)-Y(L.rt2))}" fill="rgba(63,185,80,.12)"/>`;}
+  cs.forEach((c,k)=>{const x1=X(c.hi),x2=X(c.lo),y1=Y(c.high),y2=Y(c.low),ly=k%2?y2+14:y1-5;s+=`<rect x="${x1}" y="${y1}" width="${Math.max(4,x2-x1)}" height="${Math.max(2,y2-y1)}" fill="rgba(210,153,34,.13)" stroke="#d29922" stroke-width="1"/>`+
+    `<text x="${x1}" y="${ly}" fill="#e0b341" font-size="11.5" font-weight="700">${c.lab}</text>`;});
+  b.forEach((x,i)=>{const up=x.c>=x.o,col=up?"#3fb950":"#f85149";s+=`<line x1="${X(i)}" x2="${X(i)}" y1="${Y(x.h)}" y2="${Y(x.l)}" stroke="${col}"/><rect x="${X(i)-xw*0.35}" y="${Y(Math.max(x.o,x.c))}" width="${xw*0.7}" height="${Math.max(1,Math.abs(Y(x.o)-Y(x.c)))}" fill="${col}"/>`+
+    `<rect x="${X(i)-xw*0.35}" y="${YV(x.v)}" width="${xw*0.7}" height="${Hp+Hv-YV(x.v)}" fill="${col}" opacity=".45"/>`;});
+  let path="";B.m50.forEach((m,i)=>{if(m!=null)path+=(path?"L":"M")+X(i).toFixed(1)+","+Y(m).toFixed(1);});if(path)s+=`<path d="${path}" fill="none" stroke="#ff8f33" stroke-width="1.4"/>`;
+  const hl=(p,col,dash,label)=>{const y=Y(p);s+=`<line x1="${P}" x2="${W-R}" y1="${y}" y2="${y}" stroke="${col}" stroke-dasharray="${dash}" stroke-width="1.3"/><text x="${xr}" y="${y+4}" fill="${col}" font-size="12" font-weight="700">${label}</text>`;};
+  if(L){hl(L.ext,"#8b93a1","2 4",`不追高 ${L.ext}`);hl(L.P,"#58a6ff","6 4",`突破點 ${L.P}`);if(L.stop)hl(L.stop,"#f85149","4 4",`停損 ${L.stop}`);
+    const yp=Y(b[n-1].c);s+=`<circle cx="${X(n-1)}" cy="${yp}" r="4" fill="#fff"/>`;}
+  [hi-pad,lo+pad].forEach(p=>{s+=`<text x="${xr}" y="${Y(p)+4}" fill="#6e7681" font-size="10.5">${p.toFixed(2)}</text>`;});
+  s+=`<text x="${P}" y="${Hp+12}" fill="#9aa0ae" font-size="11">${b[0].t}</text><text x="${W-R-80}" y="${Hp+12}" fill="#9aa0ae" font-size="11">${b[n-1].t}</text><text x="${P+4}" y="${P+12}" fill="#ff8f33" font-size="11">— 50 日線</text><text x="${P+80}" y="${P+12}" fill="#fff" font-size="11">● 現價</text></svg>`;
+  return s;}
+function vcpSummary(r,v){const L=vcpLevels(r.ticker,v);if(!L)return `<div class="cat gD" style="font-size:15px;line-height:1.8"><b>型態總結：正在創新高，還沒有整理出基底</b>，沒有突破點可以參考；等它回檔整理出 2–4 次收縮後再看。</div>`;
+  const p=r.price,d=v.dist,st=v.state,stopPct=L.stop?((L.stop/L.P-1)*100).toFixed(1):null,vol=L.volNeed?`，當天成交量 &gt; <b>${fmtVol(L.volNeed)}</b>（50 日均量 1.5 倍）`:"";
+  const row=(a,b)=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>${a}</span><span style="text-align:right">${b}</span></div>`;
+  let head,cls="gD";
+  if(st==="型態破壞"){head=`<b>型態總結：型態破壞</b>　現價 $${p} 已跌破最後一次收縮低點 $${L.stop}，這個基底失敗，<b>避開</b>，等它重新打底。`;}
+  else if(st==="築底中"){head=`<b>型態總結：築底中，等待突破</b>　現價 $${p}，離突破點 $${L.P} 還差 <b>${(-d).toFixed(1)}%</b>。先觀察，等收縮變窄、量縮。`;}
+  else if(st==="接近樞紐（可觀察）"){cls="gC";head=`<b class="hl">型態總結：接近突破點，等待突破</b>　現價 $${p}，離突破點 $${L.P} 只差 <b>${(-d).toFixed(1)}%</b>。可以在 $${L.P} 設價格警示。`;}
+  else if(st==="剛突破樞紐"){cls="gA";head=`<b class="hl">型態總結：已突破</b>　現價 $${p} 站上突破點 $${L.P}（+${d}%）${v.brkVol?"，今天有帶量 ✓":"，但今天量不夠大，突破還不夠可靠"}。沒追到就等回踩。`;}
+  else {head=`<b>型態總結：已突破並漲離</b>　現價 $${p} 已高於突破點 ${d}%，<b>不追高</b>；等回踩到回踩區再看。`;}
+  const rows=row("突破點（樞紐）",`<b style="color:#58a6ff">$${L.P}</b>　收盤站上${vol}才算`)+
+    row("回踩區（突破後等它回來）",`<b class="y">$${L.rt1} – $${L.rt2}</b>　守住不跌破才算成功`)+
+    row("突破失敗",`收盤跌回 <b class="n">$${L.fail}</b> 以下（突破點 -3%）`)+
+    (L.stop?row("停損",`<b class="n">$${L.stop}</b>　最後一次收縮的低點（約 ${stopPct}%）`):"")+
+    row("不追高",`超過 <b>$${L.ext}</b>（突破點 +5%）就不要買`);
+  return `<div class="cat ${cls}" style="font-size:15px;line-height:1.8;margin-top:10px">${head}</div><div style="margin-top:6px">${rows}</div>
+    <div class="dim" style="font-size:12.5px;margin-top:6px">提醒：VCP 突破在回測中沒有提高勝率，這些價位是學習與設警示用；真正買進仍以上方「A 級建議買」為準。</div>`;}
+function vcpBlock(r){const v=r.vcp;if(!v)return "";
+  const rules=VCP_RULES.map((t,i)=>`<div class="row"><span>${i+1}. ${t}</span>${mark(v.rules[i])}</div>`).join("");
+  const csr=v.cs.length?v.cs.map(c=>`<span class="tag">${c.lab}：${c.from||""}→${c.to||""}　-${c.d}%${c.live?"（進行中）":""}</span>`).join(""):'<span class="dim">找不到明確的收縮</span>';
+  return `<div class="blk" style="grid-column:1/-1"><h3>VCP 型態圖</h3>
+    <div class="hint">黃框＝每一次收縮（T1、T2…）；<span style="color:#58a6ff">藍線＝突破點</span>；<span class="n">紅線＝停損</span>；灰線＝不追高；<span class="y">綠色帶＝突破後的回踩區</span>；白點＝現價；橘線＝50 日線。</div>
+    ${vcpSvg(r.ticker,v)}${vcpSummary(r,v)}<div class="tags" style="margin:10px 0">${csr}</div>
+    <details><summary style="font-size:13.5px">VCP 7 條規則逐項檢查（符合 ${v.score}／7）</summary><div style="margin-top:6px">${rules}</div></details></div>`;}
+
+/* ================= 你的 Finviz 篩選條件（技術面部分，每次即時算） ================= */
+function screen(d){const n=d.n,c=d.c,h=d.h,s=(k,i)=>{if(i<k-1)return NaN;let a=0;for(let j=i-k+1;j<=i;j++)a+=c[j];return a/k;};
+  let last=null,lastI=-1;const chk=i=>{const m50=s(50,i),m200=s(200,i);if(isNaN(m200))return null;let hi=-Infinity;for(let j=Math.max(0,i-251);j<=i;j++)if(h[j]>hi)hi=h[j];
+    return {px:c[i]>15,trend:m50>m200,a10:c[i]>=m50*1.1,nh:c[i]>=hi*0.9,m50,m200,hi};};
+  for(let i=n-1;i>=Math.max(0,n-SCREEN_WIN);i--){const x=chk(i);if(x&&x.px&&x.trend&&x.a10&&x.nh){last=d.t[i];lastI=i;break;}}
+  const today=chk(n-1)||{};return {ok:!!last,last,daysAgo:last?n-1-lastI:null,today:{px:!!today.px,trend:!!today.trend,a10:!!today.a10,nh:!!today.nh,
+    m50:r2(today.m50),m200:r2(today.m200),hi:r2(today.hi),dHi:today.hi?r2((c[n-1]/today.hi-1)*100):null,d50:today.m50?r2((c[n-1]/today.m50-1)*100):null}};}
+
+/* ================= 抓資料 ================= */
+async function fetchBars(t,range="5Y",minN=300){
+  for(const kind of ["s","e"]){try{const r=await fetch(API(t,kind,range));if(!r.ok)continue;const j=await r.json();let d=Array.isArray(j.data)?j.data:(j.data&&j.data.data);
+    if(!d||!d.length||d[0].o===undefined)continue;d=d.filter(x=>x.c>0&&x.h>0&&x.l>0&&x.o>0).sort((a,b)=>a.t<b.t?-1:1);const n=d.length;if(n<minN)continue;
+    const T=new Array(n),O=new F(n),H=new F(n),Lw=new F(n),C=new F(n),V=new F(n);
+    d.forEach((x,i)=>{const f=(x.a&&x.c)?x.a/x.c:1;T[i]=x.t;O[i]=x.o*f;H[i]=x.h*f;Lw[i]=x.l*f;C[i]=x.c*f;V[i]=(x.v||0)/f;});
+    return {t:T,o:O,h:H,l:Lw,c:C,v:V,n};}catch(e){}}
+  return null;
+}
+
+/* ================= 版面 ================= */
+function chartUrl(t){return "https://charts2-node.finviz.com/chart?w=1200&h=560&bw=2&bm=1&bb=1&t="+encodeURIComponent(t)+"&tf=d&s=linear&pm=0&am=0&ct=candle_stick&o[0][ot]=sma&o[0][op]=20&o[0][oc]=DC32B363&o[1][ot]=sma&o[1][op]=50&o[1][oc]=FF8F33C6&o[2][ot]=sma&o[2][op]=200&o[2][oc]=DCB3326D";}
+const pct=x=>(x>0?"+":"")+x+"%";
+function statLine(P){const s=P.stat;return `10 年 ${s.n} 筆・勝率 <b>${s.wr}%</b>（同股同季隨機買 ${s.base}%）・2022 後 ${s.oos}%・每筆平均 ${pct(s.er)}（隨機 ${pct(s.baseEr)}）`;}
+function sigBlock(r,G){
+  const P=PICK[G],s=r[G];
+  if(!s) return `<div class="row"><span class="dim">${P.title}</span><span class="dim">—</span></div>`;
+  if(G==="B"&&s.fresh===false) return `<div class="row"><span class="dim">${P.title}</span><span class="dim">${s.week} 那週有訊號，原定下週一開盤進場（已過），等下一次</span></div>`;
+  const os=s.os.map(k=>`<span class="tag">${OSN[k]}</span>`).join("");
+  const what=G==="A"?`趨勢線 ${s.tl}（線 $${s.line}）`:`週線 ${s.types.map(x=>SUN[x]).join("／")} 支撐 $${s.lvl} 守住 → 下週收漲確認（${s.week} 當週）`;
+  const en=G==="A"?r.price:s.price;
+  return `<div style="margin-bottom:10px"><div class="row"><span><span class="badge gA" style="font-size:12px">觸發</span> <b>${P.title}</b></span><span class="dim" style="font-size:12.5px">${statLine(P)}</span></div>
+    <div class="dim" style="font-size:13px;margin:4px 0">${what}</div><div class="tags">${os}</div>
+    <table class="plan" style="margin-top:6px"><tr><td>參考進場（${G==="A"?"今收":"週收"}）</td><td><b>$${en}</b></td></tr>
+    <tr><td>停利 ${pct(P.tp*100)}</td><td class="y"><b>$${r2(en*(1+P.tp))}</b></td></tr><tr><td>停損 -${P.sl*100}%</td><td class="n"><b>$${r2(en*(1-P.sl))}</b></td></tr>
+    <tr><td class="dim">最長持有</td><td class="dim">${P.mh} ${P.unit}，到期收盤出場</td></tr></table>${own(r,G)}</div>`;
+}
+function own(r,G){const h=r.own&&r.own[G];if(!h||!h.n)return `<div class="dim" style="font-size:12.5px;margin-top:4px">這檔過去 5 年沒有出現過這個訊號（不影響整體回測勝率）。</div>`;
+  return `<div style="font-size:12.5px;margin-top:4px">這檔自己過去 5 年：出現 <b>${h.n}</b> 次，用同一組停利停損，贏 <b>${h.w}</b> 次（${Math.round(h.w/h.n*100)}%），平均每次 ${pct(h.er)}${h.n<5?'<span class="dim">（次數少，參考整體勝率為主）</span>':""}</div>`;}
+function verdictFull(r){const sig=r.on&&r.on.length;
+  if(r.inPool===false&&!FUND[r.ticker])return `<div class="cat gD" style="font-size:15px"><b>結論：不在你的篩選範圍內（基本面未達標或非美國公司），不建議</b></div>`;
+  if(r.inPool===false)return `<div class="cat gD" style="font-size:15px"><b>結論：近 50 天不符合你的技術條件，不在股票池內，不建議</b></div>`;
+  if(sig){const g=r.on[0],P=PICK[g],en=g==="A"?r.price:(r.B&&r.B.price)||r.price;
+    return `<div class="cat gA" style="font-size:15px"><b class="hl">結論：建議買</b>　${g==="B"?"下週一":"隔天"}開盤買・停利 <b>$${r2(en*(1+P.tp))}</b>・停損 <b>$${r2(en*(1-P.sl))}</b>・最多 ${g==="B"?"52 週":"60 天"}・回測勝率 <b class="hl">${SIGWR[g]}%</b></div>`;}
+  return `<div class="cat gD" style="font-size:15px"><b>結論：今天不買</b>　沒有抄底訊號，等它回檔出現訊號再說</div>`;}
+function gradeOf(r){if(!FUND[r.ticker]||r.inPool===false)return "C";return r.on&&r.on.length?"A":"B";}
+const GRADE_TBL=`<table class="res" style="font-size:13px;margin-top:6px"><tr class="dim"><td>分級方式</td><td>怎麼判斷</td><td>勝率</td><td>隨便買</td><td>多贏</td></tr>
+<tr><td>舊版 A 級</td><td>底背離 ≥5 ＋ 量縮 ＋ 波動收縮</td><td>60.9%</td><td>58.3%</td><td>+2.6</td></tr>
+<tr><td><b>新版 A 級</b></td><td>超賣 ＋ 趨勢線第三次觸碰 ＋ 上方無壓力</td><td><b>63.0%</b></td><td>53.9%</td><td><b class="hl">+9.1</b></td></tr></table>
+<div class="dim" style="font-size:12.5px;margin-top:6px">上表兩者用同一組出場（+10%／-12%）、同一批 344 檔、10 年資料比較。新版改用 +5%／-15% 出場並套用你的篩選後：勝率 <b class="hl">79.8%</b>（隨便買 72.2%），每筆平均 +1.4%。舊版的 B／C／D 級從來沒有回測，所以不再使用。</div>`;
+function card(r,banner){
+  const G=gradeOf(r),sig=G==="A",g=sig?r.on[0]:"A",P=PICK[g],en=g==="A"?r.price:((r.B&&r.B.price)||r.price);
+  const tp=r2(en*(1+P.tp)),sl=r2(en*(1-P.sl)),o=r.old,t=r.screen&&r.screen.today,f=FUND[r.ticker];
+  const row=(a,b,c="")=>`<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);gap:14px"><span${c?` class="${c}"`:""}>${a}</span><span style="text-align:right"${c?` class="${c}"`:""}>${b}</span></div>`;
+  // 結論
+  const head=G==="A"?`<div class="cat gA" style="font-size:16px;line-height:1.7"><span class="badge gA" style="font-size:15px">A 級</span>　<b class="hl">建議買</b>　${g==="B"?"下週一":"隔天"}開盤買，停利 <b>$${tp}</b>、停損 <b>$${sl}</b>，最多 ${P.mh} ${P.unit}。回測勝率 <b class="hl">${SIGWR[g]}%</b>（隨便買約 72%）</div>`
+    :G==="B"?`<div class="cat gD" style="font-size:16px;line-height:1.7"><span class="badge gD" style="font-size:15px">B 級</span>　<b>觀察，今天不買</b>　符合你的篩選範圍，但還沒出現抄底訊號；出現時這裡會變 A 級。</div>`
+    :`<div class="cat gD" style="font-size:16px;line-height:1.7"><span class="badge gD" style="font-size:15px">C 級</span>　<b>不買</b>　${!f?"基本面不符合你的條件（市值、營收成長、機構持股或非美國公司）":"近 50 天不符合你的技術條件"}。</div>`;
+  // 判斷依據
+  const sigTxt=k=>{const x=r[k];if(!x)return '<span class="dim">沒有</span>';if(k==="B"&&x.fresh===false)return `<span class="dim">${x.week} 那週有，進場日已過</span>`;
+    return `<b class="y">✓ 有</b>　<span class="dim">${k==="A"?`趨勢線第三次觸碰 $${x.line}`:`週線支撐 $${x.lvl} 守住`}＋${x.os.map(q=>OSN[q]).join("、")}</span>`;};
+  const conds=t&&f?[["美國・市值>3億",true],["營收季成長>5%",true],["機構持股>10%",true],["股價>$15",t.px],["50日線>200日線",t.trend],[`高於50日線10%（${t.d50}%）`,t.a10],[`距52週高點10%內（${t.dHi}%）`,t.nh]]:null;
+  const nOK=conds?conds.filter(c=>c[1]).length:0,miss=conds?conds.filter(c=>!c[1]).map(c=>c[0]):[];
+  const ownTxt=["A","B"].map(k=>{const h=r.own&&r.own[k];return `${k==="A"?"日線":"週線"} ${h&&h.n?`${h.n} 次贏 ${h.w} 次`:"沒出現過"}`;}).join("・");
+  const why=`<div class="blk"><h3>判斷依據</h3>
+    ${row("抄底訊號（日線）",sigTxt("A"))}${row("抄底訊號（週線）",sigTxt("B"))}
+    ${row("你的 7 個篩選條件",conds?(nOK===7?'<b class="y">7／7 全符合</b>':`${nOK}／7　<span class="dim">缺：${miss.join("、")}</span>`):'<span class="n">基本面不符合</span>')}
+    ${row("在你的股票池（近 50 天曾全符合）",r.screen&&r.screen.ok?`<span class="y">✓</span> <span class="dim">最後全符合 ${r.screen.last}</span>`:'<span class="n">✗</span>')}
+    ${row("這檔過去 5 年同樣訊號",ownTxt,"dim")}</div>`;
+  // 進出場＋壓力（合併）
+  const res=(o&&o.resistance)||[];const blk=res.find(x=>x["價位"]<tp&&Math.round(x["強度"])>=3);
+  const plan=`<div class="blk"><h3>進出場計畫${sig?"":"（假如出現訊號）"}</h3>
+    ${row(`進場（${g==="B"?"下週一":"隔天"}開盤）`,`<b>約 $${r2(en)}</b>`)}${row(`停利（+${P.tp*100}%）`,`<b class="y">$${tp}</b>`)}${row(`停損（-${P.sl*100}%）`,`<b class="n">$${sl}</b>`)}${row("最多持有",`${P.mh} ${P.unit}，到期收盤賣`,"dim")}
+    <div class="lbl" style="margin-top:10px">上方壓力（以前漲到這裡就被賣回去，★ 越多越難過）</div>
+    ${res.length?res.slice(0,3).map(x=>row(`$${x["價位"]}（+${x["距離%"]}%）`,`<span style="color:#d29922">${stars(x["強度"])}</span>`)).join(""):'<div class="dim" style="font-size:13px">上方 30% 內沒有明顯壓力</div>'}
+    ${blk?`<div class="warn">停利價前有 ${stars(blk["強度"])} 壓力 $${blk["價位"]}，可能先被擋住。</div>`:'<div class="dim" style="font-size:13px;margin-top:6px">停利價之前沒有強壓力 ✓</div>'}</div>`;
+  // 參考指標（合併、去重）
+  let ref="";
+  if(o){const d=o.divergence,rs=o.rs_vs_bench,ttMiss=Object.entries(o.tt_detail).filter(x=>!x[1]).map(x=>x[0]);
+    ref=`<div class="blk"><h3>參考指標（不影響分級）</h3><div class="hint">10 年回測：以下指標加進去都沒有提高勝率，只用來了解這檔股票。</div>
+    ${row("體質（趨勢模板）",`${o.tt_score}／8　<span class="dim">${o.tt_score>=7?"強勢股":o.tt_score>=4?"普通":"偏弱"}</span>`)}
+    <div class="dim" style="font-size:12.5px;margin:-2px 0 4px">回測：出現抄底訊號時，體質 0–3 分勝率 80.1%、4–5 分 80.2%、6 分 81.2%、7–8 分 81.4%，差不到 1.5 個百分點，所以體質偏弱不影響是否建議買。</div>
+    ${ttMiss.length?`<div class="dim" style="font-size:12.5px;margin:-2px 0 4px">未達：${ttMiss.join("、")}</div>`:""}
+    ${row("底背離（跌勢減弱的跡象）",`${d["數量"]}／10 個指標${d["指標"].length?`　<span class="dim">${d["指標"].join("、")}</span>`:""}`)}
+    ${row("成交量變小・震幅變小",`${o.vcp["量能乾涸"]?"✓":"✗"} ・ ${o.vcp["波動收縮"]?"✓":"✗"}`)}
+    ${row("RSI(14)",`${o.rsi}　<span class="dim">${o.rsi>=70?"偏熱":o.rsi<=30?"超賣":"正常"}</span>`)}
+    ${row("距 52 週高點",`${o["52w"]["距高點%"]}%　<span class="dim">（區間 ${o["52w"].low}–${o["52w"].high}）</span>`)}
+    ${row("相對強度 vs SPY",rs==null?"—":`${rs}　<span class="dim">${rs>1?"強於大盤":"弱於大盤"}</span>`)}
+    ${row("均線 20／50／200",`${o.ma["20"]}／${o.ma["50"]}／${o.ma["200"]}`,"dim")}</div>`;}
+  return `<div class="card">${head}
+    <div class="hd"><span class="tk">${r.ticker}</span><span class="px">$${r.price}</span><span class="dim">資料日 ${r.date}</span></div>
+    <img class="chart" loading="lazy" src="${chartUrl(r.ticker)}" alt="${r.ticker} 日線圖">
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">${why}${plan}${ref}</div>
+    <details style="margin-top:14px"><summary>VCP 型態圖：突破點、回踩區、停損（學習用）</summary><div class="grid">${vcpBlock(r)}<div class="blk" style="grid-column:1/-1">${LEARN_HTML}</div></div></details>
+    <div style="margin-top:10px">${INFO_HTML}</div></div>`;
+}
+const mark=v=>v?'<span class="y">✓</span>':'<span class="n">✗</span>';
+const stars=n=>"★".repeat(Math.max(1,Math.round(n)));
+function screenBlock(r){const f=FUND[r.ticker],sc=r.screen;if(!sc)return "";const t=sc.today;
+  const fr=f?`<div class="row"><span>美國公司・市值 &gt;3 億（$${f.cap}B）</span>${mark(true)}</div><div class="row"><span>營收季成長 &gt;5%（${f.sales}%）</span>${mark(true)}</div><div class="row"><span>機構持股 &gt;10%（${f.inst}%）</span>${mark(true)}</div>`
+    :`<div class="row"><span>基本面（美國、市值、營收成長、機構持股）</span><span class="n">✗ 未達標或非美國公司</span></div>`;
+  return `<div class="blk"><h3>你的篩選條件</h3><div class="hint">基本面用 ${FUND_DATE} 快照；技術面每次即時算。<b>近 ${SCREEN_WIN} 個交易日內曾符合技術條件</b>就列入股票池（抄底訊號出現時股價已回檔，當天不可能還在 50 日線上方 10%）。</div>
+    ${fr}<div class="row"><span>股價 &gt;$15</span>${mark(t.px)}</div><div class="row"><span>50 日線 &gt; 200 日線</span>${mark(t.trend)}</div>
+    <div class="row"><span>股價高於 50 日線 10%（今天 ${t.d50??"—"}%）</span>${mark(t.a10)}</div><div class="row"><span>距 52 週高點 10% 內（今天 ${t.dHi??"—"}%）</span>${mark(t.nh)}</div>
+    <div class="row" style="margin-top:6px"><b>${f&&sc.ok?'<span class="y">✓ 在你的股票池內</span>':'<span class="n">✗ 不在你的股票池內</span>'}</b><span class="dim">${sc.ok?`最後一次全符合：${sc.last}（${sc.daysAgo} 天前）`:`近 ${SCREEN_WIN} 天沒有全部符合`}</span></div></div>`;}
+function healthBlocks(r){const o=r.old;if(!o)return "";
+  const sig=!!(r.on&&r.on.length),g=sig?r.on[0]:"A",P=PICK[g],en=g==="A"?r.price:((r.B&&r.B.price)||r.price);
+  const tp=r2(en*(1+P.tp)),sl=r2(en*(1-P.sl));const res=o.resistance||[];const blk=res.find(x=>x["價位"]<tp&&Math.round(x["強度"])>=3);
+  const row=(a,b,c="")=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span${c?` class="${c}"`:""}>${a}</span><span${c?` class="${c}"`:""}>${b}</span></div>`;
+  const plan=`<div class="blk"><h3>進出場計畫</h3><div class="hint">${sig?"今天有訊號，照這組數字操作。停利停損要<b>成對</b>使用，改了就不適用回測勝率。":"今天<b>沒有訊號，不買</b>。下面是「假如出現訊號」時的價位，先參考。"}</div>
+    ${row(`進場（${g==="B"?"下週一":"隔天"}開盤，參考價）`,`<b>$${r2(en)}</b>`)}${row(`停利（+${P.tp*100}%）`,`<b class="y">$${tp}</b>`)}${row(`停損（-${P.sl*100}%）`,`<b class="n">$${sl}</b>`)}
+    ${row("最多持有",`${P.mh} ${P.unit}，到期收盤賣`,"dim")}${row("參考：10 日低點",`$${o.stop}（-${o.risk_pct}%）`,"dim")}
+    ${blk?`<div class="warn">停利價前有 ${stars(blk["強度"])} 壓力 $${blk["價位"]}（+${blk["距離%"]}%），可能先被擋住。</div>`:`<div class="dim" style="font-size:13px;margin-top:8px">停利價之前沒有強壓力 ✓</div>`}</div>`;
+  const rtab=res.length?'<table class="res">'+res.map(x=>`<tr><td><b>$${x["價位"]}</b></td><td class="dim">+${x["距離%"]}%</td><td class="dim">碰過 ${x["觸碰次數"]} 次</td><td style="color:#d29922">${stars(x["強度"])}</td></tr>`).join("")+'</table>':'<div class="dim">上方 30% 內沒有明顯壓力（股價在區間高點附近）</div>';
+  const resb=`<div class="blk"><h3>上方壓力位</h3><div class="hint">壓力＝以前漲到這裡就被賣回去的價位，★ 越多越難突破。用來判斷停利前有沒有阻礙。</div>${rtab}</div>`;
+  const v=o.v4,vc=o.vcp,d=o.divergence;
+  const v4b=`<div class="blk"><h3>V4 三要件（舊版分級）</h3><div class="hint">舊版「三個都 ✓ ＝ A 級」。後來 10 年回測只比隨便買多約 2 個百分點，<b>僅供參考，不決定買賣</b>。</div>
+    ${row("底背離 ≥5 個",mark(v["背離≥5"]))}${row("量能乾涸（最近成交量變小）",mark(v["量能乾涸"]))}${row("波動收縮（震幅越來越小）",mark(v["波動收縮"]))}${row("舊版分級",`${o.grade4} 級`,"dim")}</div>`;
+  const divb=`<div class="blk"><h3>底背離（掃 10 個指標）</h3><div class="hint">股價創新低、但指標沒有跟著創新低＝跌勢在減弱。舊版門檻 ≥5 個；回測沒有明顯提高勝率，僅供參考。</div>
+    <div class="big">${d["數量"]} 個 <span class="badge ${d["數量"]>=5?"gA":"gD"}" style="font-size:12px">${d["數量"]>=5?"達標":"未達 5 個"}</span></div><div class="tags">${d["指標"].length?d["指標"].map(x=>`<span class="tag">${x}</span>`).join(""):'<span class="dim">無</span>'}</div></div>`;
+  const ttb=`<div class="blk"><h3>MINERVINI 趨勢模板　${o.tt_score}/8</h3><div class="hint">股票體質檢查：7 分以上＝健康的強勢股（參考）。</div>${Object.entries(o.tt_detail).map(([k,x])=>`<div class="row"><span>${k}</span>${mark(x)}</div>`).join("")}</div>`;
+  const rsiTxt=o.rsi>=70?"（偏熱）":o.rsi<=30?"（超賣）":"";const rs=o.rs_vs_bench;
+  const oth=`<div class="blk"><h3>其他數據</h3>${row("RSI(14)",`${o.rsi}${rsiTxt}`)}${row("距 52 週高點",`${o["52w"]["距高點%"]}%`)}${row("52 週區間",`${o["52w"].low} – ${o["52w"].high}`)}
+    ${row("MA 20 / 50 / 200",`${o.ma["20"]} / ${o.ma["50"]} / ${o.ma["200"]}`)}${row("相對強度 vs SPY（1 年）",rs==null?"—":`${rs}${rs>1?"（強於大盤）":"（弱於大盤）"}`)}</div>`;
+  return `<h3 style="margin:20px 0 4px;font-size:16px">個股健檢</h3><div class="dim" style="font-size:12.5px">進出場計畫照驗證過的規則算；其他項目是參考，不改變上面的結論。</div>
+    <div class="grid" style="margin-top:10px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">${plan}${resb}${v4b}${divb}${ttb}${oth}</div>`;}
+function oldBlocks(r){const o=r.old;if(!o)return "";const d=o.divergence,v=o.v4,vc=o.vcp;
+  const res=!o.resistance||!o.resistance.length?'<div class="dim">上方 30% 內無明顯壓力（已在區間高點附近）</div>':'<table class="res">'+o.resistance.map(x=>`<tr><td>$${x["價位"]}</td><td class="dim">+${x["距離%"]}%</td><td class="dim">觸碰 ${x["觸碰次數"]} 次</td><td style="color:#d29922">${stars(x["強度"])}</td></tr>`).join("")+'</table>';
+  const fr=o.resistance&&o.resistance[0];
+  const warn=fr&&fr["距離%"]<3&&fr["強度"]>=4?`<div class="warn">上方 +${fr["距離%"]}% 就有 ${stars(fr["強度"])} 強壓力；若要進場，停利 +5% 可能先被這裡擋住。</div>`:"";
+  return `<div class="lbl" style="margin:18px 0 0;font-size:14px;color:#e6e8ee">體質與參考（原版儀表板內容，不決定買賣）</div>
+  <div class="grid" style="margin-top:10px">
+    <div class="blk"><h3>上方壓力位</h3><div class="hint">用途是<b>濾進場、分批出、移動停損</b>。新版日線停利 +5%，上方 5% 內有強壓力時要特別留意。</div>${res}${warn}</div>
+    <div class="blk"><h3>MINERVINI 趨勢模板　${o.tt_score}/8</h3><div class="hint">股票體質檢查。7 分以上才算健康的領導股。</div>${Object.entries(o.tt_detail).map(([k,x])=>`<div class="row"><span>${k}</span>${mark(x)}</div>`).join("")}</div>
+    <div class="blk"><h3>底背離（掃 10 個指標）</h3><div class="hint">原版 A 級用「背離 ≥5」，回測只比隨機多 2 個百分點、不顯著，所以新版不拿它決定買賣。</div>
+      <div class="big">${d["數量"]} 個</div><div class="tags">${d["指標"].length?d["指標"].map(x=>`<span class="tag">${x}</span>`).join(""):'<span class="dim">無</span>'}</div>
+      <div class="row" style="margin-top:8px"><span>量能乾涸</span>${mark(vc["量能乾涸"])}</div><div class="row"><span>波動收縮（VCP）</span>${mark(vc["波動收縮"])}</div>
+      <div class="row dim"><span>原版 V4 分級</span><span>${o.grade4} 級</span></div></div>
+    <div class="blk"><h3>其他數據</h3>
+      <div class="row dim"><span>距 52 週高點</span><span>${o["52w"]["距高點%"]}%</span></div>
+      <div class="row dim"><span>相對強度 vs SPY（1 年）</span><span>${o.rs_vs_bench??"—"}</span></div>
+      <div class="row dim"><span>自 20 日高回檔</span><span>${o.pullback["回檔%"]}%</span></div>
+      <div class="row dim"><span>10 日低點</span><span>$${o.stop}（-${o.risk_pct}%）</span></div></div>
+  </div>`;}
+const CN={DE_CL_GAP:"DE：經典守住＋破缺口",DE_BOCC_GAP:"DE：BOCC 守住＋破缺口",DE_BOCC_BO:"DE：BOCC 守住＋破 BO",DE_BO_GAP:"DE：BO 守住＋破缺口",DE_GAP_BO:"DE：缺口守住＋破 BO",DE_HNS:"DE：頭肩破左肩",DE_any:"任一 DE",
+  SU_CL:"設置＋DC：經典",SU_GAP:"設置＋DC：缺口",SU_BO:"設置＋DC：突破",SU_BOCC:"設置＋DC：BOCC",SU_HNS:"設置＋DC：頭肩",SU_any:"任一設置＋DC",TL111:"趨勢線 111 第三觸",TLbr:"趨勢線突破回踩",TL_any:"任一趨勢線 C3"};
+const cname=k=>{const [s,x]=k.split("|");const p=s.split("+");return CN[p[0]]+p.slice(1).map(q=>({EQ:"＋EQ",OS:"＋超賣",TL:"＋趨勢線重疊",noObs:"＋無大障礙"})[q]).join("")+(x==="snr"?"（SNR 出場）":"（固定出場）");};
+function verdict(row){const [G,k,n,wr,base,beat,er,ber,tp,sl,oos,oosB,ye,boot,f]=row;
+  if(f!=="PASS")return `<span class="n">✗ ${f}</span>`;
+  if(PICK[G].key===G+"|"+k)return `<span class="y"><b>✓ 採用</b></span>`;
+  if(k.endsWith("|snr")&&er<1)return `<span style="color:#d29922">△ 勝率過關，但每筆只賺 ${er}%（停利 ${tp}%／停損 ${sl}%），扣成本幾乎不賺</span>`;
+  return `<span style="color:#d29922">△ 過關，未採用（${k.endsWith("|snr")?"賺賠比低":"與採用組合重疊、較弱"}）</span>`;}
+function yearsTable(Y){return `<table class="res" style="margin-top:6px"><tr class="dim"><td>年度</td><td>筆數</td><td>勝率</td><td>隨機</td><td>平均</td></tr>`+
+  Y.map(([y,n,w,b,e])=>`<tr><td>${y}</td><td>${n}</td><td class="${w>=60?"y":w<54.5?"n":""}">${w}%</td><td class="dim">${b}%</td><td>${pct(e)}</td></tr>`).join("")+`</table>`;}
+function comboReport(){
+  const rows=[...COMBO].sort((a,b)=>(a[14]==="PASS"?0:1)-(b[14]==="PASS"?0:1)||b[3]-a[3]);
+  const tbl=G=>`<table class="res" style="font-size:12.5px;margin-top:8px"><tr class="dim"><td>組合</td><td>筆數</td><td>勝率</td><td>隨機</td><td>2022後</td><td>贏隨機</td><td>年份</td><td>重抽</td><td>結果</td></tr>`+
+    rows.filter(r=>r[0]===G).map(r=>`<tr><td>${cname(r[1])}</td><td>${r[2]}</td><td>${r[3]??"—"}%</td><td class="dim">${r[4]??"—"}%</td><td>${r[10]??"—"}%</td><td>${r[5]??"—"}/100</td><td>${r[12]??"—"}</td><td>${r[13]??"—"}/100</td><td>${verdict(r)}</td></tr>`).join("")+`</table>`;
+  return `<p style="color:#9aa0ae;font-size:14px;margin:12px 0 0"><b style="color:#e6e8ee">測了什麼：</b>坤庭 SNR 的 6 種 DE、5 種設置＋DC、趨勢線（111 延續、11b2 突破回踩），各自跟 EQ（大小週期同一價位）、超賣指標（5 根內）、趨勢線重疊、大障礙濾網交錯組合。
+  框架照黃金 M15／H1／H4 的比例放大：<b style="color:#e6e8ee">A 組＝日線進場／週線 EQ／月線障礙</b>，<b style="color:#e6e8ee">B 組＝週線進場／月線 EQ／季線障礙</b>。出場測兩種：固定（A：+10%/-12%/60 天；B：+20%/-20%/52 週）與 SNR 式（停損線外、停利下一個壓力）。<b style="color:#e6e8ee">下表是第一輪用舊出場篩組合的結果；採用的兩組後來改成高勝率出場，數字見「出場設定」報告與上方採用框。</b>
+  門檻同單一指標：≥100 筆、總勝率與 2022 後勝率都 ≥60%、100 次隨機對照贏 ≥95 次、≥80% 年份贏隨機、季度重抽 ≥80/100 次 ≥60%。</p>
+  <div class="grid">${["A","B"].map(G=>`<div class="blk"><h3>✓ 採用：${PICK[G].title}</h3><div class="hint">${PICK[G].rule}<br>${PICK[G].exit}<br>${statLine(PICK[G])}・季度重抽 ${PICK[G].stat.boot}/100</div>${yearsTable(PICK[G].years)}</div>`).join("")}</div>
+  <p style="color:#9aa0ae;font-size:13.5px"><b style="color:#e6e8ee">重要發現：</b>① SNR 的 DE、設置單獨使用，在美股日線／週線<b style="color:#e6e8ee">都沒有贏過隨機進場</b>，課程說的 60–70% 在這裡沒有重現。② SNR 式出場的勝率常常 65–80%，但停利太近（平均 +2.5%~+4%）、停損較遠，每筆期望值只有 +0.1%~+0.4%，扣掉手續費滑價幾乎不賺，所以不採用。③ 真正有效的是「SNR／趨勢線的位置 ＋ 超賣指標」交錯，單用任何一邊都不夠。</p>
+  <h3 style="font-size:15px;margin:16px 0 0">A 組（日線）全部結果</h3>${tbl("A")}<h3 style="font-size:15px;margin:16px 0 0">B 組（週線）全部結果</h3>${tbl("B")}`;
+}
+function exitReport(){
+  const tbl=(G,rows)=>{const P=PICK[G];return `<table class="res" style="font-size:12.5px;margin-top:8px"><tr class="dim"><td>停利／停損</td><td>筆數</td><td>勝率</td><td>隨機</td><td>勝率差</td><td>每筆平均</td><td>隨機平均</td><td>2016–21</td><td>2022–26</td><td></td></tr>`+
+    rows.map(r=>{const [tp,sl,n,wr,rnd,er,rer,is,oos]=r,on=tp===P.tp*100&&sl===P.sl*100,orig=G==="A"?(tp===10&&sl===12):(tp===20&&sl===20);
+      return `<tr${on?' style="background:rgba(63,185,80,.12)"':""}><td>+${tp}%／-${sl}%</td><td>${n}</td><td class="${wr>=75?"y":""}">${wr}%</td><td class="dim">${rnd}%</td><td>+${(wr-rnd).toFixed(1)}</td><td>${pct(er)}</td><td class="dim">${pct(rer)}</td><td>${is}%</td><td>${oos}%</td><td>${on?'<b class="y">✓ 採用</b>':orig?'<span class="dim">舊版</span>':""}</td></tr>`;}).join("")+`</table>`;};
+  return `<p style="color:#9aa0ae;font-size:14px;margin:12px 0 0"><b style="color:#e6e8ee">為什麼勝率可以從 63% 拉到 80%：</b>進場訊號完全不變，只改出場。把停利放近、停損放遠，價格比較容易先碰到停利，勝率自然變高。
+  但這招對「隨便亂買」也一樣有效，所以每一列都跟同一檔、同一季隨機買的結果比，<b style="color:#e6e8ee">只有「勝率差」和「每筆平均」贏隨機才算數</b>。</p>
+  <p style="color:#9aa0ae;font-size:14px"><b style="color:#e6e8ee">選擇標準（事先訂好）：</b>勝率 ≥75%、每筆平均 ≥+1%、2016–21 與 2022–26 兩段都成立、10 年中至少 8 年贏隨機、100 次隨機對照全贏。
+  日線選 <b style="color:#e6e8ee">+5%／-15%</b>：勝率 79.7%（隨機 72.3%），每筆 +1.40%（隨機 +0.09%），10 年每一年都贏隨機，平均 16 天出場，資金周轉比舊版快，每天的報酬率與舊版相當。
+  週線選 <b style="color:#e6e8ee">+10%／-20%</b>：勝率 76.6%（隨機 72.0%），每筆 +3.05%（隨機 +1.71%），9/10 年贏隨機。+3% 這種極近停利雖然勝率 87–89%，但每筆只賺 1% 左右，扣成本後太薄，所以沒選。</p>
+  <p style="color:#9aa0ae;font-size:14px"><b style="color:#e6e8ee">代價要先知道：</b>日線每輸一次是 -15%，要贏 3 次才補得回來（損益兩平勝率 75%），所以 <b style="color:#e6e8ee">停損一定要掛</b>，單筆部位建議不超過總資金 10%。2022 年日線勝率 73.5%、每筆 +0.04%，週線 66%、-0.14%，空頭年大約打平。</p>
+  <h3 style="font-size:15px;margin:16px 0 0">日線抄底：30 組出場設定（最多 60 天）</h3>${tbl("A",EXITS.A)}<h3 style="font-size:15px;margin:16px 0 0">週線抄底：18 組出場設定（最多 52 週）</h3>${tbl("B",EXITS.B)}`;}
+function avoidReport(){
+  const v=r=>{const [id,nm,n,nIS,wIS,nO,wO,er,kIS,kO,kw,ker]=r;
+    if(nIS<50||nO<30)return '<span class="n">✗ 樣本不足</span>';
+    if(wIS<=kIS-5&&wO<=kO-3)return '<span class="y"><b>✓ 成立</b></span>';
+    if(wIS>kIS&&wO>kO)return '<span class="n">✗ 被排除的那群反而更好</span>';
+    return '<span class="n">✗ 兩段時間結果相反，不穩定</span>';};
+  const tbl=G=>`<table class="res" style="font-size:12.5px;margin-top:8px"><tr class="dim"><td>「不做」條件</td><td>會被排除</td><td>排除的勝率 2016–21</td><td>保留的 2016–21</td><td>排除的 2022–26</td><td>保留的 2022–26</td><td>結果</td></tr>`+
+    AVOID[G].map(r=>`<tr><td>${r[1]}</td><td>${r[2]} 筆</td><td>${r[4]}%</td><td class="dim">${r[8]}%</td><td>${r[6]}%</td><td class="dim">${r[9]}%</td><td>${v(r)}</td></tr>`).join("")+`</table>`;
+  return `<p style="color:#9aa0ae;font-size:14px;margin:12px 0 0"><b style="color:#e6e8ee">怎麼驗的：</b>在兩個採用的抄底組合上，事先列好 19 條「不做」條件（大盤、個股、超賣強度、趨勢線類型、SNR 水平類型），每條看「被排除的那群」是不是真的比較差。
+  成立標準（事先訂好）：被排除的勝率，在 2016–2021 要比保留的低 5 個百分點以上，在 2022–2026 也要低 3 個百分點以上，且兩段樣本都夠（≥50／≥30 筆）。</p>
+  <p style="color:#9aa0ae;font-size:14px"><b style="color:#e6e8ee">結果：沒有任何一條「不做」條件成立，所以儀表板沒有加上任何不做規則。</b><br>
+  ① 大盤弱勢時「不做」反而有害：大盤在 200 日線下、下彎、恐慌、大跌時，這兩個抄底訊號的勝率反而最高（日線 73–85%、週線 82–90%，2016–2021）。這是買跌策略的本質——跌越深反彈越大。但這些時段集中在 2018/12、2020/03、2022/05、2025/04 幾次事件，次數太少，不能拿來「加碼」。<br>
+  ② 接近成立但樣本不足：週線組合中「超賣只有創新低一個」的情況（112 筆），兩段時間勝率都比較差（59.5%、49.3%），但 2016–2021 只有 37 筆，未達門檻。<br>
+  ③ 趨勢線類型、SNR 水平類型（經典／缺口／BO／BOCC）、超賣只有一個指標：前後兩段時間結果相反，屬於雜訊。</p>
+  <h3 style="font-size:15px;margin:16px 0 0">日線抄底</h3>${tbl("A")}<h3 style="font-size:15px;margin:16px 0 0">週線抄底</h3>${tbl("B")}`;
+}
+function singleReport(){
+  const NM={v4A:"原 A 級（背離≥5＋量縮＋波動收縮）",v4B:"原 B 級",div5:"底背離≥5",tt7:"趨勢模板≥7",rsi30:"RSI<30",wt60:"WaveTrend<-60",cci150:"CCI<-150",td9:"TD 九轉",nl30:"30 日新低",pb4:"趨勢模板＋回檔",mvPre:"Minervini VCP 突破前",mvBrk:"Minervini 放量突破",mtrA:"MACD 趨勢共振 A",mtrB:"MACD 趨勢共振 B",gc2:"MACD 零軸下二次金叉",rsiDiv:"RSI 正背離",rsiHid:"RSI 隱藏背離",fib:"費波那契回檔",sta:"技術面買訊≥2",scrMA:"MA5 上穿 MA20",scrMACD:"MACD 金叉",scrVol:"爆量上漲",scrKDJ:"KDJ 低檔金叉",scrNH60:"60 日新高",scrMA60:"站上 60 日線",taGX:"50/200 黃金交叉",taBB:"布林下軌收回",taSTO:"KD<20 金叉",taADX:"ADX>25",taAlign:"均線多頭排列",mtf:"多週期共振",tgPB:"縮量回調再起",tgBox:"箱體突破",tgPit:"黃金坑",ema1020:"EMA10/20 交叉",gap:"缺口回測"};
+  return `<table class="res" style="font-size:12.5px;margin-top:8px"><tr class="dim"><td>單一指標</td><td>筆數</td><td>勝率</td><td>隨機</td><td>2022後</td><td>贏隨機</td><td>年份</td><td>重抽</td></tr>`+
+    [...REPORT.rows].sort((a,b)=>b[2]-a[2]).map(r=>`<tr><td>${NM[r[0]]||r[0]}</td><td>${r[1]}</td><td>${r[2]}%</td><td class="dim">${r[3]}%</td><td>${r[9]}%</td><td>${r[4]}/100</td><td>${r[11]}</td><td>${r[15]}/100</td></tr>`).join("")+`</table>
+    <p class="dim" style="font-size:12.5px">單一指標中只有 WaveTrend 超賣、MACD 零軸下二次金叉過了全部門檻；它們現在都包含在「超賣訊號」裡，跟 SNR／趨勢線交錯使用。</p>`;
+}
+function setStatus(h){document.getElementById("status").innerHTML=h;}
+function setProg(p){const b=document.getElementById("prog");b.style.width=(p*100).toFixed(1)+"%";b.parentElement.style.display=p>0&&p<1?"block":"none";}
+function updateMeta(){const a=DATA.filter(r=>r.A).length,b=DATA.filter(r=>r.B).length;
+  document.getElementById("meta").innerHTML=`資料日期 <b>${META.asof||"—"}</b>（美股收盤）　|　更新於 ${META.scannedAt||"—"}　|　你的篩選：基本面 ${POOLINFO.fund} 檔 → 近 ${SCREEN_WIN} 日符合技術面 <b>${POOLINFO.tech}</b> 檔　|　日線抄底 ${a} 檔・週線抄底 ${b} 檔`+
+    (META.failed.length?`　|　<span class="n" title="${META.failed.join(", ")}">略過 ${META.failed.length} 檔</span>`:"");}
+function visible(){return DATA.filter(r=>filter==="全部"||(filter==="今日建議"?r.grade==="Y":filter==="今天完全符合篩選"?fullNow(r):filter==="趨勢模板≥7"?(r.old&&r.old.tt_score>=7):(r.histA.length||r.histB.length))).sort((a,b)=>(a.grade<b.grade?1:a.grade>b.grade?-1:0)||((b.histA.length+b.histB.length)-(a.histA.length+a.histB.length)));}
+function fillSel(){}
+const EXTRA={};
+const fullNow=r=>{const t=r.screen&&r.screen.today;return !!(t&&t.px&&t.trend&&t.a10&&t.nh);};
+function render(t,fs){const r=EXTRA[t]||DATA.find(x=>x.ticker===t);if(!r)return;showModal(card(r,fs));}
+function toPanel(){}
+function lookup(go){const q=document.getElementById("q").value.trim().toUpperCase().replace(/[^A-Z0-9.\-]/g,""),msg=document.getElementById("qmsg");if(!q){msg.textContent="";return;}
+  const r=DATA.find(x=>x.ticker===q)||EXTRA[q];
+  if(go)adhoc(q);
+  else if(r){msg.innerHTML=`<span class="${r.grade==="Y"?"y":"dim"}">${r.ticker}：${r.grade==="Y"?"今天可以買":"今天沒有抄底訊號"}</span>`;render(q,true);toPanel();}
+  else msg.innerHTML=`<span class="dim">按 Enter 或「分析」即時抓 ${q} 的最新行情</span>`;}
+async function adhoc(t){const msg=document.getElementById("qmsg");msg.innerHTML='<span class="dim">抓取 '+t+' 中…</span>';showModal('<div class="dim" style="padding:30px;text-align:center">正在抓取 '+t+' 的最新行情並分析…</div>');const d=await fetchBars(t);
+  if(!d){msg.innerHTML=`<span class="n">找不到 ${t} 的行情資料</span>`;showModal(`<div class="n" style="padding:30px;text-align:center">找不到 ${t} 的行情資料，請確認代碼。</div>`);return;}const r=analyze(t,d);r.screen=screen(d);r.inPool=!!(FUND[t]&&r.screen.ok);if(!r.inPool){r.grade="N";}EXTRA[t]=r;
+  msg.innerHTML=r.inPool?`<span class="${r.grade==="Y"?"y":"dim"}">${r.grade==="Y"?"今天符合抄底建議":"今天沒有抄底訊號"}</span>`:`<span class="n">${t} 不在你的篩選股票池內${r.on.length?"（雖然有抄底訊號，但不符合你的條件，不列入建議）":""}</span>`;render(t,true);toPanel();}
+function snapRecs(){return SNAP.recs.map(x=>`<div class="card" style="padding:14px"><div class="hd"><span class="tk">${x.t}</span><span class="px">$${x.p}</span><span class="badge gA">${x.g==="A"?"日線抄底":"週線抄底"}</span><span class="dim">${SNAP.asof} 收盤觸發</span></div>
+  <div class="dim" style="font-size:13.5px">${x.how}　超賣：${x.os.map(k=>OSN[k]).join("、")}</div>
+  <table class="plan" style="margin-top:6px;max-width:460px"><tr><td>參考進場（收盤價，實際用隔天開盤）</td><td><b>$${x.p}</b></td></tr><tr><td>停利 +5%</td><td class="y"><b>$${r2(x.p*1.05)}</b></td></tr><tr><td>停損 -15%</td><td class="n"><b>$${r2(x.p*0.85)}</b></td></tr></table>
+  <div style="font-size:12.5px;margin-top:6px">這檔過去 5 年同訊號：${x.own[0]?`${x.own[0]} 次、贏 ${x.own[1]} 次`:"沒出現過"}　<button class="btn" style="padding:3px 10px" onclick="document.getElementById('q').value='${x.t}';lookup(true)">看完整分析與 VCP 圖</button></div></div>`).join("");}
+function renderAll(){updateMeta();renderGrid();document.getElementById("tks").innerHTML=DATA.map(r=>`<option value="${r.ticker}">`).join("");
+  const recs=DATA.filter(r=>r.grade==="Y");
+  renderBuy();
+
+
+  fillSel();}
+async function scan(){if(scanning)return;scanning=true;const btn=document.getElementById("rescan");btn.disabled=true;setStatus('<span class="dim">連線取得最新行情中…</span>');setProg(0.01);
+  const out=[],failed=[],pool=[],skipped=[];let done=0,i=0;
+  try{const sp=await fetchBars("SPY");if(sp)BENCH=toObjs(sp);}catch(e){}
+  // 第 1 段：1 年資料，套你的技術條件
+  const w1=async()=>{while(i<TICKERS.length){const t=TICKERS[i++];const d=await fetchBars(t,"1Y",210);if(d){const sc=screen(d);if(sc.ok)pool.push([t,sc]);else skipped.push(t);}else failed.push(t);
+    done++;setProg(done/TICKERS.length*0.5);setStatus(`<span class="dim">第 1 步：用你的篩選條件過濾 ${done}/${TICKERS.length}…（已入池 ${pool.length} 檔）</span>`);if(done%25===0)await new Promise(r=>setTimeout(r,0));}};
+  await Promise.all(Array.from({length:10},w1));
+  // 第 2 段：股票池內抓 5 年資料，跑抄底訊號
+  let j=0,d2=0;const w2=async()=>{while(j<pool.length){const [t,sc]=pool[j++];const d=await fetchBars(t);if(d){try{const r=analyze(t,d);r.screen=screen(d);r.inPool=true;out.push(r);}catch(e){failed.push(t);}}else failed.push(t);
+    d2++;setProg(0.5+d2/pool.length*0.5);setStatus(`<span class="dim">第 2 步：分析股票池 ${d2}/${pool.length}…</span>`);if(d2%10===0)await new Promise(r=>setTimeout(r,0));}};
+  await Promise.all(Array.from({length:8},w2));scanning=false;btn.disabled=false;setProg(1);
+  POOLINFO={fund:TICKERS.length,tech:pool.length,skipped:skipped.length};
+  if(done-failed.length<TICKERS.length*0.3){setStatus(`<span class="n">連線失敗，無法取得最新行情（成功 ${out.length} 檔）。${DATA.length?"目前顯示上次的結果。":""}請確認網路後按「重新掃描」。</span>`);return;}
+  const dates=out.map(r=>r.date).sort(),asof=dates[dates.length-1],cutoff=new Date(new Date(asof).getTime()-10*864e5).toISOString().slice(0,10);
+  const stale=out.filter(r=>r.date<cutoff).map(r=>r.ticker+"(最後交易 "+r.date+")");
+  DATA=out.filter(r=>r.date>=cutoff).sort((a,b)=>a.ticker<b.ticker?-1:1);
+  META={asof,scannedAt:new Date().toLocaleString("zh-TW",{hour12:false}),failed:failed.concat(stale)};
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify({META,DATA,POOLINFO}));}catch(e){}setStatus('<span class="y">✓ 已更新到最新收盤</span>');renderAll();}
+function loadCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");if(c&&c.DATA&&c.DATA.length){DATA=c.DATA;META=c.META;if(c.POOLINFO)POOLINFO=c.POOLINFO;return true;}}catch(e){}return false;}
+
+const TPLI=document.getElementById("tplInfo").content,TPLL=document.getElementById("tplLearn").content;
+TPLI.querySelector("#combo").innerHTML=comboReport();
+TPLI.querySelector("#single").innerHTML=singleReport();
+TPLI.querySelector("#avoid").innerHTML=avoidReport();
+TPLI.querySelector("#exits").innerHTML=exitReport();
+{const a=document.createElement("div");a.appendChild(TPLI.cloneNode(true));INFO_HTML=a.innerHTML;const b=document.createElement("div");b.appendChild(TPLL.cloneNode(true));LEARN_HTML=b.innerHTML;}
+document.getElementById("q").addEventListener("input",()=>lookup(false));
+document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter")lookup(true);});
+document.getElementById("qgo").addEventListener("click",()=>lookup(true));
+document.getElementById("chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;CAT=c.dataset.g;GRIDN=60;renderGrid();});
+document.getElementById("sel").addEventListener("change",e=>{const t=e.target.value;if(!t)return;document.getElementById("q").value=t;lookup(true);e.target.value="";});
+document.getElementById("rescan").addEventListener("click",scan);
+document.getElementById("gridtabs").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;GRIDTAB=c.dataset.k;GRIDN=60;renderGrid();});
+document.getElementById("gridmore").addEventListener("click",e=>{if(e.target.id==="morebtn"){GRIDN+=60;renderGrid();}});
+document.getElementById("top20").addEventListener("click",e=>{const c=e.target.closest(".tile");if(!c)return;document.getElementById("q").value=c.dataset.t;lookup(true);});
+document.getElementById("mclose").addEventListener("click",hideModal);
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")hideModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")hideModal();});
+document.getElementById("grid").addEventListener("click",e=>{const c=e.target.closest(".tile");if(!c)return;document.getElementById("q").value=c.dataset.t;lookup(true);});
+if(loadCache())renderAll();else{renderGrid();renderBuy();}
+scan();
+
+</script></body></html>
